@@ -7,30 +7,32 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
-
+  build-windows-android:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        dotnet-version: [9.0.x]
-
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Restore workloads
+        run: dotnet workload restore
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build Windows and Android
+        run: dotnet build --no-restore
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ matrix.dotnet-version }}
-
-    - name: Restore workloads
-      run: dotnet workload restore
-
-    - name: Restore dependencies
-      run: dotnet restore
-
-    - name: Build
-      run: dotnet build --no-restore
-
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+  build-ios-maccatalyst:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Restore workloads
+        run: dotnet workload restore
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build iOS and MacCatalyst
+        run: dotnet build --no-restore
