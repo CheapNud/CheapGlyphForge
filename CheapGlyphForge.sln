@@ -11,6 +11,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheapGlyphForge.GlyphMatrix
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheapGlyphForge.Core", "CheapGlyphForge.Core\CheapGlyphForge.Core.csproj", "{2E02E052-9F5C-45AE-8FAE-2A1CB5AE564A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		BindingAnalysis.txt = BindingAnalysis.txt
+		BindingExplorer.ps1 = BindingExplorer.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
