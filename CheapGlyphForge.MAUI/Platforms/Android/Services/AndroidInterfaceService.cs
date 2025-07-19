@@ -1,16 +1,17 @@
-﻿using Android.Content;
+﻿// CheapGlyphForge.MAUI/Platforms/Android/Services/AndroidInterfaceService.cs
+using Android.Content;
 using CheapGlyphForge.Core.Interfaces;
 using CheapGlyphForge.Core.Models;
 using CheapGlyphForge.Core.Helpers;
-using System.Diagnostics;
 using Com.Nothing.Ketchum;
+using System.Diagnostics;
 
 namespace CheapGlyphForge.MAUI.Platforms.Android.Services;
 
 /// <summary>
 /// Android implementation of IGlyphInterfaceService using Nothing Phone Glyph SDK
 /// </summary>
-public class AndroidInterfaceService : IGlyphInterfaceService, IDisposable
+public partial class AndroidInterfaceService : IGlyphInterfaceService, IDisposable
 {
     private readonly Context _context;
     private GlyphManager? _glyphManager;
@@ -408,32 +409,6 @@ public class AndroidInterfaceService : IGlyphInterfaceService, IDisposable
         }
 
         return true;
-    }
-
-    #endregion
-
-    #region Internal Callback Handler
-
-    private class GlyphManagerCallback(AndroidInterfaceService service) : Java.Lang.Object, GlyphManager.ICallback
-    {
-        private readonly AndroidInterfaceService _service = service;
-
-        public void OnServiceConnected(ComponentName? componentName)
-        {
-            Debug.WriteLine("AndroidInterfaceService: Glyph service connected");
-            _service.IsConnected = true;
-            _service.ConnectionChanged?.Invoke(_service, true);
-            _service._connectionTcs?.SetResult(true);
-        }
-
-        public void OnServiceDisconnected(ComponentName? componentName)
-        {
-            Debug.WriteLine("AndroidInterfaceService: Glyph service disconnected");
-            _service.IsConnected = false;
-            _service.IsSessionOpen = false;
-            _service.ConnectionChanged?.Invoke(_service, false);
-            _service._connectionTcs?.SetResult(false);
-        }
     }
 
     #endregion
