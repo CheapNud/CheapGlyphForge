@@ -1,0 +1,38 @@
+name: Build .NET 9 MAUI Solution
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      # Checkout repository
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Setup .NET 9
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      # Install MAUI workloads
+      - name: Install .NET MAUI workload
+        run: dotnet workload install maui
+
+      # Restore dependencies
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # Build all projects (class libraries, bindings, MAUI)
+      - name: Build Solution
+        run: dotnet build --no-restore -c Release
+
+      # Run unit tests for class libraries (if present)
+      - name: Run Tests
+        run: dotnet test --no-build --verbosity normal
