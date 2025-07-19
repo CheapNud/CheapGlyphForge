@@ -8,6 +8,7 @@ public enum GlyphShape
     Circle,
     Square,
     Cross,
+    Line,
     Heart,
     Star,
     Arrow,
