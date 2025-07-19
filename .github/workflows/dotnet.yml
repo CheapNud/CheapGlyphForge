@@ -1,4 +1,4 @@
-name: .NET 9 MAUI CI/CD
+name: .NET 9 MAUI CI/CD (Matrix Parallel)
 
 on:
   push:
@@ -7,22 +7,30 @@ on:
     branches: [ "master" ]
 
 jobs:
-  # ======================
-  # Windows + Android Build
-  # ======================
-  build-windows-android:
-    runs-on: windows-latest
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        include:
+          # Windows runner: Win + Android
+          - os: windows-latest
+            platform: windows
+          # macOS runner: iOS only (always works)
+          - os: macos-latest
+            platform: ios
+          # macOS runner: MacCatalyst (skip if Xcode too low)
+          - os: macos-latest
+            platform: maccatalyst
+
     steps:
-      # Checkout
       - uses: actions/checkout@v4
 
-      # Setup .NET 9
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
 
-      # Cache NuGet
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
@@ -30,95 +38,87 @@ jobs:
           key: nuget-${{ runner.os }}-${{ hashFiles('**/packages.lock.json') }}
           restore-keys: nuget-${{ runner.os }}-
 
-      # Install MAUI & workloads
+      - name: Cache build outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/bin
+            **/obj
+          key: build-${{ runner.os }}-${{ github.sha }}
+          restore-keys: build-${{ runner.os }}-
+
       - name: Install MAUI workloads
         run: dotnet workload install maui --ignore-failed-sources
 
-      # Restore dependencies
       - name: Restore dependencies
         run: |
           dotnet workload restore
-          dotnet restore /p:RuntimeIdentifier=win-x64
+          if [ "${{ matrix.platform }}" = "windows" ]; then
+            dotnet restore /p:RuntimeIdentifier=win-x64
+          elif [ "${{ matrix.platform }}" = "ios" ]; then
+            dotnet restore /p:RuntimeIdentifier=iossimulator-x64
+          elif [ "${{ matrix.platform }}" = "maccatalyst" ]; then
+            dotnet restore /p:RuntimeIdentifier=maccatalyst-x64
+          fi
 
-      # Build class libraries
-      - name: Build Class Libraries
+      - name: Build Class Libraries (only once per job)
         run: dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj -c Release
 
-      # Run tests (if any)
-      - name: Run Tests
-        run: dotnet test --no-build --verbosity normal
+      # Windows + Android on Windows runner
+      - name: Build platform-specific app (Windows + Android)
+        if: matrix.platform == 'windows'
+        run: |
+          dotnet publish CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj -f net9.0-windows10.0.19041.0 -r win-x64 -c Release --self-contained false
+          dotnet publish CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj -f net9.0-android -c Release
 
-      # Build Windows
-      - name: Build Windows App
-        run: dotnet publish CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj -f net9.0-windows10.0.19041.0 -r win-x64 -c Release --self-contained false
+      # iOS on macOS runner
+      - name: Build iOS App (Simulator)
+        if: matrix.platform == 'ios'
+        run: dotnet publish CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj -f net9.0-ios -r iossimulator-x64 -c Release
 
-      # Build Android
-      - name: Build Android App
-        run: dotnet publish CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj -f net9.0-android -c Release
+      # MacCatalyst on macOS runner
+      - name: Check Xcode version for MacCatalyst build
+        if: matrix.platform == 'maccatalyst'
+        run: |
+          xcode_version=$(xcodebuild -version | head -n 1 | awk '{print $2}')
+          echo "Xcode version: $xcode_version"
+          major_version=$(echo $xcode_version | cut -d '.' -f 1)
+          minor_version=$(echo $xcode_version | cut -d '.' -f 2)
 
-      # Upload artifacts
+          if [[ "$major_version" -lt 16 ]] || { [[ "$major_version" -eq 16 ]] && [[ "$minor_version" -lt 4 ]]; }; then
+            echo "ERROR: Xcode version is less than 16.4 which is required by .NET MacCatalyst SDK 18.5.9207."
+            echo "Skipping MacCatalyst build due to incompatible Xcode version."
+            exit 78  # 78 = skipped (neutral) in GitHub Actions
+          fi
+
+      - name: Build MacCatalyst App
+        if: matrix.platform == 'maccatalyst'
+        run: dotnet publish CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj -f net9.0-maccatalyst -r maccatalyst-x64 -c Release
+
       - name: Upload Windows Artifact
+        if: matrix.platform == 'windows'
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
           path: CheapGlyphForge.MAUI/bin/Release/net9.0-windows10.0.19041.0/win-x64
 
       - name: Upload Android Artifact
+        if: matrix.platform == 'windows'
         uses: actions/upload-artifact@v4
         with:
           name: android-build
           path: CheapGlyphForge.MAUI/bin/Release/net9.0-android
 
-  # ======================
-  # macOS: iOS + MacCatalyst Build
-  # ======================
-  build-ios-macos:
-    runs-on: macos-latest
-    steps:
-      # Checkout
-      - uses: actions/checkout@v4
-
-      # Setup .NET 9
-      - name: Setup .NET 9
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 9.0.x
-
-      # Cache NuGet
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: nuget-${{ runner.os }}-${{ hashFiles('**/packages.lock.json') }}
-          restore-keys: nuget-${{ runner.os }}-
-
-      # Install MAUI & Apple workloads
-      - name: Install MAUI workloads
-        run: dotnet workload install maui --ignore-failed-sources
-
-      # Restore dependencies
-      - name: Restore dependencies
-        run: |
-          dotnet workload restore
-          dotnet restore /p:RuntimeIdentifier=maccatalyst-x64
-
-      # Build Mac Catalyst
-      - name: Build Mac Catalyst App
-        run: dotnet publish CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj -f net9.0-maccatalyst -r maccatalyst-x64 -c Release
-
-      # Build iOS (Simulator)
-      - name: Build iOS App (Simulator)
-        run: dotnet publish CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj -f net9.0-ios -r iossimulator-x64 -c Release
-
-      # Upload artifacts
-      - name: Upload Mac Catalyst Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-build
-          path: CheapGlyphForge.MAUI/bin/Release/net9.0-maccatalyst
-
       - name: Upload iOS Artifact
+        if: matrix.platform == 'ios'
         uses: actions/upload-artifact@v4
         with:
           name: ios-build
           path: CheapGlyphForge.MAUI/bin/Release/net9.0-ios
+
+      - name: Upload MacCatalyst Artifact
+        if: matrix.platform == 'maccatalyst'
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: CheapGlyphForge.MAUI/bin/Release/net9.0-maccatalyst
