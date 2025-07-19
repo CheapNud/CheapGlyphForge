@@ -1,10 +1,9 @@
-﻿// CheapGlyphForge.MAUI/Platforms/Android/Services/AndroidInterfaceService.cs
-using Android.Content;
+﻿using Android.Content;
 using CheapGlyphForge.Core.Interfaces;
 using CheapGlyphForge.Core.Models;
 using CheapGlyphForge.Core.Helpers;
-using Com.Nothing.Ketchum;
 using System.Diagnostics;
+using Com.Nothing.Ketchum;
 
 namespace CheapGlyphForge.MAUI.Platforms.Android.Services;
 
@@ -55,7 +54,7 @@ public class AndroidInterfaceService : IGlyphInterfaceService, IDisposable
             _connectionTcs = new TaskCompletionSource<bool>();
 
             // Start the async initialization
-            await Task.Run(() => _glyphManager.Init(_callback));
+            await Task.Run(() => _glyphManager!.Init(_callback));
 
             // Wait for connection callback with timeout
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
@@ -104,7 +103,7 @@ public class AndroidInterfaceService : IGlyphInterfaceService, IDisposable
                     _ => throw new ArgumentException($"Unsupported device type: {deviceType}")
                 };
 
-                var success = _glyphManager.Register(deviceString);
+                var success = _glyphManager!.Register(deviceString);
                 if (success)
                 {
                     RegisteredDevice = deviceType;
@@ -378,8 +377,8 @@ public class AndroidInterfaceService : IGlyphInterfaceService, IDisposable
 
     public IGlyphFrameBuilder CreateFrameBuilder()
     {
-        if (_glyphManager == null)
-            throw new InvalidOperationException("Service not initialized");
+        if (_glyphManager?.GlyphFrameBuilder == null)
+            throw new InvalidOperationException("Service not initialized or GlyphFrameBuilder not available");
 
         return new GlyphFrameBuilderWrapper(_glyphManager.GlyphFrameBuilder);
     }
@@ -453,95 +452,3 @@ public class AndroidInterfaceService : IGlyphInterfaceService, IDisposable
 
     #endregion
 }
-
-#region Frame Builder Wrapper
-
-/// <summary>
-/// Wrapper for the native GlyphFrame.Builder
-/// </summary>
-internal class GlyphFrameBuilderWrapper(GlyphFrame.Builder nativeBuilder) : IGlyphFrameBuilder
-{
-    private readonly GlyphFrame.Builder _nativeBuilder = nativeBuilder;
-
-    public IGlyphFrameBuilder AddChannel(int channel)
-    {
-        _nativeBuilder.BuildChannel(channel);
-        return this;
-    }
-
-    public IGlyphFrameBuilder AddChannels(params int[] channels)
-    {
-        foreach (var channel in channels)
-            _nativeBuilder.BuildChannel(channel);
-        return this;
-    }
-
-    public IGlyphFrameBuilder AddChannelA()
-    {
-        _nativeBuilder.BuildChannelA();
-        return this;
-    }
-
-    public IGlyphFrameBuilder AddChannelB()
-    {
-        _nativeBuilder.BuildChannelB();
-        return this;
-    }
-
-    public IGlyphFrameBuilder AddChannelC()
-    {
-        _nativeBuilder.BuildChannelC();
-        return this;
-    }
-
-    public IGlyphFrameBuilder AddChannelD()
-    {
-        _nativeBuilder.BuildChannelD();
-        return this;
-    }
-
-    public IGlyphFrameBuilder AddChannelE()
-    {
-        _nativeBuilder.BuildChannelE();
-        return this;
-    }
-
-    public IGlyphFrameBuilder SetPeriod(int milliseconds)
-    {
-        _nativeBuilder.BuildPeriod(milliseconds);
-        return this;
-    }
-
-    public IGlyphFrameBuilder SetCycles(int cycles)
-    {
-        _nativeBuilder.BuildCycles(cycles);
-        return this;
-    }
-
-    public IGlyphFrameBuilder SetInterval(int milliseconds)
-    {
-        _nativeBuilder.BuildInterval(milliseconds);
-        return this;
-    }
-
-    public IGlyphFrame Build()
-    {
-        var nativeFrame = _nativeBuilder.Build();
-        return new GlyphFrameWrapper(nativeFrame);
-    }
-}
-
-/// <summary>
-/// Wrapper for the native GlyphFrame
-/// </summary>
-internal class GlyphFrameWrapper(GlyphFrame nativeFrame) : IGlyphFrame
-{
-    private readonly GlyphFrame _nativeFrame = nativeFrame;
-
-    public int[] Channels => _nativeFrame.GetChannel() ?? [];
-    public int Period => _nativeFrame.Period;
-    public int Cycles => _nativeFrame.Cycles;
-    public int Interval => _nativeFrame.Interval;
-}
-
-#endregion
