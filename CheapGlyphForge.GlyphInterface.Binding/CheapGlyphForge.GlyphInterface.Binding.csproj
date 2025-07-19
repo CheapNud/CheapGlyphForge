@@ -1,0 +1,21 @@
+﻿<!-- CheapGlyphForge.GlyphInterface.Binding.csproj -->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>34</SupportedOSPlatformVersion>
+    <IsBindingProject>true</IsBindingProject>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- Suppress common binding warnings -->
+    <NoWarn>CS0114;CS0108</NoWarn>
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- JAR file for Glyph Interface SDK -->
+    <EmbeddedJar Include="Jars\glyph-interface-sdk.jar" />
+    <!-- OR if it needs to be InputJar instead: -->
+    <!-- <InputJar Include="Jars\glyph-interface-sdk.jar" /> -->
+  </ItemGroup>
+
+</Project>

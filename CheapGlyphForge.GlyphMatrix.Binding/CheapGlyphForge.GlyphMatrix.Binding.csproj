@@ -1,0 +1,19 @@
+<!-- CheapGlyphForge.GlyphMatrix.Binding.csproj -->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>34</SupportedOSPlatformVersion>
+    <IsBindingProject>true</IsBindingProject>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- JAR file for Glyph Interface SDK -->
+    <EmbeddedJar Include="Jars\glyphmatrix-interface-sdk.aar" />
+    <!-- OR if it needs to be InputJar instead: -->
+    <!-- <InputJar Include="Jars\glyph-interface-sdk.jar" /> -->
+  </ItemGroup>
+
+</Project>
