@@ -17,6 +17,12 @@ CheapGlyphForge provides clean C# wrapper interfaces for the Nothing Phone Glyph
 - **Cross-platform Development** - MAUI Blazor app with Android Glyph Toy support
 - **Modern C# APIs** - Async/await patterns with proper error handling
 
+## Current Approach
+
+Currently using the **Matrix SDK only** (which includes Interface functionality) for simplicity. 
+
+**Future plans:** Split into lightweight Interface-only and full Matrix packages for broader ecosystem support.
+
 ## Requirements
 
 - Nothing Phone with Glyph support
