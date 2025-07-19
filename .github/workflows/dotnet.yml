@@ -1,0 +1,208 @@
+name: .NET 9 MAUI CI/CD (Multi-Job)
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  windows:
+    name: Build Windows
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-windows-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: nuget-windows-
+
+      - name: Cache build outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/bin
+            **/obj
+          key: build-windows-${{ github.sha }}
+          restore-keys: build-windows-
+
+      - name: Install MAUI workloads
+        run: dotnet workload install maui --ignore-failed-sources
+
+      - name: Restore dependencies (win-x64)
+        run: dotnet restore /p:RuntimeIdentifier=win-x64
+
+      - name: Build Class Libraries
+        run: dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj -c Release
+
+      - name: Publish Windows App
+        run: dotnet publish CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj -f net9.0-windows10.0.19041.0 -r win-x64 -c Release --self-contained false
+
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: CheapGlyphForge.MAUI/bin/Release/net9.0-windows10.0.19041.0/win-x64
+
+  android:
+    name: Build Android
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-android-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: nuget-android-
+
+      - name: Cache build outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/bin
+            **/obj
+          key: build-android-${{ github.sha }}
+          restore-keys: build-android-
+
+      - name: Install MAUI workloads
+        run: dotnet workload install maui --ignore-failed-sources
+
+      - name: Restore dependencies (android)
+        run: dotnet restore /p:RuntimeIdentifier=android-arm64
+
+      - name: Build Class Libraries
+        run: dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj -c Release
+
+      - name: Publish Android App
+        run: dotnet publish CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj -f net9.0-android -c Release
+
+      - name: Test Android project
+        run: dotnet test CheapGlyphForge.MAUI.Tests/CheapGlyphForge.MAUI.Tests.csproj --framework net9.0-android
+
+      - name: Upload Android Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build
+          path: CheapGlyphForge.MAUI/bin/Release/net9.0-android
+
+  ios:
+    name: Build iOS
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-ios-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: nuget-ios-
+
+      - name: Cache build outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/bin
+            **/obj
+          key: build-ios-${{ github.sha }}
+          restore-keys: build-ios-
+
+      - name: Install MAUI workloads
+        run: dotnet workload install maui --ignore-failed-sources
+
+      - name: Restore dependencies (ios)
+        run: dotnet restore /p:RuntimeIdentifier=iossimulator-x64
+
+      - name: Build Class Libraries
+        run: dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj -c Release
+
+      - name: Publish iOS App (Simulator)
+        run: dotnet publish CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj -f net9.0-ios -r iossimulator-x64 -c Release
+
+      - name: Upload iOS Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build
+          path: CheapGlyphForge.MAUI/bin/Release/net9.0-ios
+
+  maccatalyst:
+    name: Build MacCatalyst
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-maccatalyst-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: nuget-maccatalyst-
+
+      - name: Cache build outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/bin
+            **/obj
+          key: build-maccatalyst-${{ github.sha }}
+          restore-keys: build-maccatalyst-
+
+      - name: Install MAUI workloads
+        run: dotnet workload install maui --ignore-failed-sources
+
+      - name: Restore dependencies (maccatalyst)
+        run: dotnet restore /p:RuntimeIdentifier=maccatalyst-x64
+
+      - name: Check Xcode version for MacCatalyst build
+        run: |
+          xcode_version=$(xcodebuild -version | head -n 1 | awk '{print $2}')
+          echo "Xcode version: $xcode_version"
+          major_version=$(echo $xcode_version | cut -d '.' -f 1)
+          minor_version=$(echo $xcode_version | cut -d '.' -f 2)
+
+          if [[ "$major_version" -lt 16 ]] || { [[ "$major_version" -eq 16 ]] && [[ "$minor_version" -lt 4 ]]; }; then
+            echo "ERROR: Xcode version is less than 16.4 which is required by .NET MacCatalyst SDK 18.5.9207."
+            echo "Skipping MacCatalyst build due to incompatible Xcode version."
+            exit 78  # 78 = skipped (neutral) in GitHub Actions
+          fi
+
+      - name: Build Class Libraries
+        run: dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj -c Release
+
+      - name: Publish MacCatalyst App
+        run: dotnet publish CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj -f net9.0-maccatalyst -r maccatalyst-x64 -c Release
+
+      - name: Upload MacCatalyst Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: CheapGlyphForge.MAUI/bin/Release/net9.0-maccatalyst
