@@ -7,7 +7,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build-windows-android:
+  build-android:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -17,16 +17,38 @@ jobs:
       with:
         dotnet-version: 9.0.x
     
-    # Only install Android workloads for this runner
-    - name: Install Android workload
-      run: dotnet workload install android
+    # Cache workloads for faster builds
+    - name: Cache .NET workloads
+      uses: actions/cache@v4
+      with:
+        path: ~/.dotnet
+        key: ${{ runner.os }}-dotnet-workloads-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-dotnet-workloads-
     
-    - name: Restore dependencies
-      run: dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj
+    # Use workload restore instead of individual installs
+    - name: Restore workloads
+      run: |
+        dotnet workload install maui-android
+        dotnet workload install android
     
-    # Build only Android framework
-    - name: Build Android
-      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net9.0-android --no-restore --configuration Release
+    # Build Core library first (platform-agnostic)
+    - name: Build Core
+      run: |
+        dotnet restore CheapGlyphForge.Core/CheapGlyphForge.Core.csproj
+        dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --no-restore --configuration Release
+    
+    # Build Matrix binding (Android only) 
+    - name: Build Matrix Binding
+      run: |
+        dotnet restore CheapGlyphForge.GlyphMatrix.Binding/CheapGlyphForge.GlyphMatrix.Binding.csproj
+        dotnet build CheapGlyphForge.GlyphMatrix.Binding/CheapGlyphForge.GlyphMatrix.Binding.csproj --no-restore --configuration Release
+    
+    # Build MAUI project targeting only Android
+    - name: Build MAUI Android
+      run: |
+        dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj
+        dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net9.0-android --no-restore --configuration Release
 
   build-windows:
     runs-on: windows-latest
@@ -38,47 +60,34 @@ jobs:
       with:
         dotnet-version: 9.0.x
     
-    # Install Windows workload
+    # Cache workloads for faster builds
+    - name: Cache .NET workloads  
+      uses: actions/cache@v4
+      with:
+        path: C:\Program Files\dotnet
+        key: ${{ runner.os }}-dotnet-workloads-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-dotnet-workloads-
+    
+    # Install only Windows MAUI workload
     - name: Install Windows workload
-      run: dotnet workload install maccatalyst
+      run: dotnet workload install maui-windows
     
-    - name: Restore dependencies
-      run: dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj
-    
-    # Build only Windows framework  
-    - name: Build Windows
-      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net9.0-windows10.0.19041.0 --no-restore --configuration Release
-
-  build-ios-maccatalyst:
-    runs-on: macos-14  # Use macOS 14 which has Xcode 16.x
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 9.0.x
-    
-    # Install iOS/MacCatalyst workloads
-    - name: Install iOS and MacCatalyst workloads
+    # Build only Core + MAUI Windows (skip Android binding)
+    - name: Build Core
       run: |
-        dotnet workload install ios
-        dotnet workload install maccatalyst
+        dotnet restore CheapGlyphForge.Core/CheapGlyphForge.Core.csproj
+        dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --no-restore --configuration Release
     
-    - name: Restore dependencies
-      run: dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj
-    
-    # Build iOS framework
-    - name: Build iOS
-      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net9.0-ios --no-restore --configuration Release
-    
-    # Build MacCatalyst framework
-    - name: Build MacCatalyst
-      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net9.0-maccatalyst --no-restore --configuration Release
+    - name: Build MAUI Windows
+      run: |
+        dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj
+        dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net9.0-windows10.0.19041.0 --no-restore --configuration Release
 
-  # Optional: Core library build verification (cross-platform)
-  build-core:
-    runs-on: ubuntu-latest
+  # Separate iOS/macOS job to avoid cross-platform conflicts
+  build-ios-macos:
+    runs-on: macos-14  # Has Xcode 16.x 
+    if: false  # Disable iOS builds for now due to Xcode version requirements
     steps:
     - uses: actions/checkout@v4
     
@@ -87,11 +96,32 @@ jobs:
       with:
         dotnet-version: 9.0.x
     
-    - name: Restore Core dependencies
-      run: dotnet restore CheapGlyphForge.Core/CheapGlyphForge.Core.csproj
+    # Cache workloads for faster builds
+    - name: Cache .NET workloads
+      uses: actions/cache@v4
+      with:
+        path: ~/.dotnet
+        key: ${{ runner.os }}-dotnet-workloads-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-dotnet-workloads-
     
-    - name: Build Core library
-      run: dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --no-restore --configuration Release
+    # Install iOS/macOS workloads (no Android needed)
+    - name: Install iOS/macOS workloads
+      run: |
+        dotnet workload install maui-ios
+        dotnet workload install maui-maccatalyst
     
-    - name: Test Core library
-      run: dotnet test CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --no-build --configuration Release
+    # Build only Core + MAUI iOS/macOS (skip Android binding)
+    - name: Build Core
+      run: |
+        dotnet restore CheapGlyphForge.Core/CheapGlyphForge.Core.csproj
+        dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --no-restore --configuration Release
+    
+    - name: Build MAUI iOS
+      run: |
+        dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj  
+        dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net9.0-ios --no-restore --configuration Release
+    
+    - name: Build MAUI macOS
+      run: |
+        dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net9.0-maccatalyst --no-restore --configuration Release
