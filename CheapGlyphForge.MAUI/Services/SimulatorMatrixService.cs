@@ -28,6 +28,7 @@ public sealed class SimulatorMatrixService : IGlyphMatrixService
     #region Properties
     public bool IsConnected => _isConnected;
     public GlyphDeviceType? RegisteredDevice => _registeredDevice;
+    public int[] CurrentMatrix => (int[])_currentMatrix.Clone();
     #endregion
 
     #region Connection Management
@@ -71,6 +72,20 @@ public sealed class SimulatorMatrixService : IGlyphMatrixService
     #endregion
 
     #region Raw Matrix Control
+    public GlyphPixel[] GetCurrentPixels()
+    {
+        var pixels = new GlyphPixel[IGlyphMatrixService.TotalPixels];
+
+        for (int i = 0; i < IGlyphMatrixService.TotalPixels; i++)
+        {
+            var x = i % IGlyphMatrixService.MatrixWidth;
+            var y = i / IGlyphMatrixService.MatrixWidth;
+            pixels[i] = new GlyphPixel(x, y, _currentMatrix[i]);
+        }
+
+        return pixels;
+    }
+
     public async Task<bool> SetMatrixFrameAsync(int[] ledData)
     {
         if (!ValidateMatrixData(ledData))

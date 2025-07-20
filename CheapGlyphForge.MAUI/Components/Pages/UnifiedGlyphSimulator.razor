@@ -11,7 +11,7 @@
 <PageTitle>Unified Glyph Simulator</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pa-6">
-    
+
     <!-- Header Section -->
     <MudPaper Class="pa-4 mb-4" Elevation="2">
         <MudGrid AlignItems="Center">
@@ -32,19 +32,19 @@
     <!-- Mode Selection -->
     <MudPaper Class="pa-4 mb-4" Elevation="1">
         <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Class="mb-3">
-            <MudButton StartIcon="Icons.Material.Filled.Lightbulb" 
-                      Variant="@(_simulationMode == SimulationMode.Interface ? Variant.Filled : Variant.Outlined)"
-                      OnClick="() => SetSimulationMode(SimulationMode.Interface)">
+            <MudButton StartIcon="Icons.Material.Filled.Lightbulb"
+                       Variant="@(_simulationMode == SimulationMode.Interface ? Variant.Filled : Variant.Outlined)"
+                       OnClick="() => SetSimulationMode(SimulationMode.Interface)">
                 Interface Mode
             </MudButton>
-            <MudButton StartIcon="Icons.Material.Filled.GridOn" 
-                      Variant="@(_simulationMode == SimulationMode.Matrix ? Variant.Filled : Variant.Outlined)"
-                      OnClick="() => SetSimulationMode(SimulationMode.Matrix)">
+            <MudButton StartIcon="Icons.Material.Filled.GridOn"
+                       Variant="@(_simulationMode == SimulationMode.Matrix ? Variant.Filled : Variant.Outlined)"
+                       OnClick="() => SetSimulationMode(SimulationMode.Matrix)">
                 Matrix Mode
             </MudButton>
-            <MudButton StartIcon="Icons.Material.Filled.ViewModule" 
-                      Variant="@(_simulationMode == SimulationMode.Unified ? Variant.Filled : Variant.Outlined)"
-                      OnClick="() => SetSimulationMode(SimulationMode.Unified)">
+            <MudButton StartIcon="Icons.Material.Filled.ViewModule"
+                       Variant="@(_simulationMode == SimulationMode.Unified ? Variant.Filled : Variant.Outlined)"
+                       OnClick="() => SetSimulationMode(SimulationMode.Unified)">
                 Unified View
             </MudButton>
         </MudButtonGroup>
@@ -62,13 +62,13 @@
         <MudItem xs="12" lg="8">
             <MudPaper Class="pa-4" Elevation="2">
                 <MudText Typo="Typo.h6" Class="mb-4">Nothing Phone Simulation</MudText>
-                
+
                 <!-- Phone Outline Container -->
                 <div style="position: relative; width: 100%; max-width: 400px; margin: 0 auto; aspect-ratio: 0.47;">
-                    
+
                     <!-- Phone Background -->
                     <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); border-radius: 24px; border: 2px solid #404040;"></div>
-                    
+
                     <!-- Interface Channels (if enabled) -->
                     @if (_simulationMode == SimulationMode.Interface || _simulationMode == SimulationMode.Unified)
                     {
@@ -80,19 +80,22 @@
                             </div>
                         }
                     }
-                    
+
                     <!-- Matrix Overlay (if enabled) -->
                     @if (_simulationMode == SimulationMode.Matrix || _simulationMode == SimulationMode.Unified)
                     {
+                        <!-- Matrix LED Grid Overlay -->
                         <div style="@MatrixOverlayStyle">
-                            @for (int y = 0; y < IGlyphMatrixService.MatrixHeight; y++)
+                            @for (int row = 0; row < IGlyphMatrixService.MatrixHeight; row++)
                             {
-                                <div style="display: flex;">
-                                    @for (int x = 0; x < IGlyphMatrixService.MatrixWidth; x++)
+                                <div style="display: flex; gap: 1px;">
+                                    @for (int col = 0; col < IGlyphMatrixService.MatrixWidth; col++)
                                     {
-                                        var pixelIndex = y * IGlyphMatrixService.MatrixWidth + x;
-                                        <div style="@GetPixelStyle(x, y)" @onclick="() => TogglePixel(x, y)">
-                                        </div>
+                                        var pixelIndex = row * IGlyphMatrixService.MatrixWidth + col;
+                                        var intensity = _matrixPixels[pixelIndex].Intensity;
+                                        var pixelStyle = GetMatrixPixelStyle(intensity);
+
+                                        <div style="@pixelStyle" @onclick="() => ToggleMatrixPixel(col, row)"></div>
                                     }
                                 </div>
                             }
@@ -106,7 +109,7 @@
         <MudItem xs="12" lg="4">
             <MudPaper Class="pa-4" Elevation="2">
                 <MudText Typo="Typo.h6" Class="mb-4">Controls</MudText>
-                
+
                 <!-- Interface Controls -->
                 @if (_simulationMode == SimulationMode.Interface || _simulationMode == SimulationMode.Unified)
                 {
@@ -114,7 +117,7 @@
                         <MudExpansionPanel IsExpanded="true">
                             <TitleContent>
                                 <div style="display: flex; align-items: center;">
-                                    <MudIcon Icon="Icons.Material.Filled.Lightbulb" Class="mr-3"/>
+                                    <MudIcon Icon="Icons.Material.Filled.Lightbulb" Class="mr-3" />
                                     <MudText>Interface Channels</MudText>
                                 </div>
                             </TitleContent>
@@ -123,30 +126,30 @@
                                 {
                                     <MudGrid AlignItems="Center" Class="mb-2">
                                         <MudItem xs="3">
-                                            <MudButton Variant="Variant.Outlined" 
-                                                      Color="Color.Primary" 
-                                                      Size="Size.Small"
-                                                      OnClick="() => ToggleChannel(channel)">
+                                            <MudButton Variant="Variant.Outlined"
+                                                       Color="Color.Primary"
+                                                       Size="Size.Small"
+                                                       OnClick="() => ToggleChannel(channel)">
                                                 @channel
                                             </MudButton>
                                         </MudItem>
                                         <MudItem xs="6">
-                                            <MudSlider T="int" 
-                                                      Min="0" 
-                                                      Max="255" 
-                                                      Step="1"
-                                                      Value="@GetChannelIntensity(channel)"
-                                                      ValueChanged="(int value) => SetChannelIntensity(channel, value)"
-                                                      Class="mx-2"/>
+                                            <MudSlider T="int"
+                                                       Min="0"
+                                                       Max="255"
+                                                       Step="1"
+                                                       Value="@GetChannelIntensity(channel)"
+                                                       ValueChanged="(int value) => SetChannelIntensity(channel, value)"
+                                                       Class="mx-2" />
                                         </MudItem>
                                         <MudItem xs="3">
                                             <MudText Typo="Typo.caption">@GetChannelIntensity(channel)</MudText>
                                         </MudItem>
                                     </MudGrid>
                                 }
-                                
-                                <MudDivider Class="my-3"/>
-                                
+
+                                <MudDivider Class="my-3" />
+
                                 <MudButtonGroup Variant="Variant.Outlined" Size="Size.Small" Class="mb-2">
                                     <MudButton OnClick="AnimateAllChannels" StartIcon="Icons.Material.Filled.AutoAwesome">
                                         Animate All
@@ -167,38 +170,38 @@
                         <MudExpansionPanel IsExpanded="true">
                             <TitleContent>
                                 <div style="display: flex; align-items: center;">
-                                    <MudIcon Icon="Icons.Material.Filled.GridOn" Class="mr-3"/>
+                                    <MudIcon Icon="Icons.Material.Filled.GridOn" Class="mr-3" />
                                     <MudText>Matrix Controls</MudText>
                                 </div>
                             </TitleContent>
                             <ChildContent>
                                 <MudGrid Class="mb-3">
                                     <MudItem xs="6">
-                                        <MudNumericField T="int" 
-                                                        Label="X Position" 
-                                                        @bind-Value="_matrixX" 
-                                                        Min="0" 
-                                                        Max="24"
-                                                        Variant="Variant.Outlined"/>
+                                        <MudNumericField T="int"
+                                                         Label="X Position"
+                                                         @bind-Value="_matrixX"
+                                                         Min="0"
+                                                         Max="24"
+                                                         Variant="Variant.Outlined" />
                                     </MudItem>
                                     <MudItem xs="6">
-                                        <MudNumericField T="int" 
-                                                        Label="Y Position" 
-                                                        @bind-Value="_matrixY" 
-                                                        Min="0" 
-                                                        Max="24"
-                                                        Variant="Variant.Outlined"/>
+                                        <MudNumericField T="int"
+                                                         Label="Y Position"
+                                                         @bind-Value="_matrixY"
+                                                         Min="0"
+                                                         Max="24"
+                                                         Variant="Variant.Outlined" />
                                     </MudItem>
                                 </MudGrid>
-                                
-                                <MudSlider T="int" 
-                                          Label="Intensity" 
-                                          Min="0" 
-                                          Max="255" 
-                                          Step="1"
-                                          @bind-Value="_matrixIntensity"
-                                          Class="mb-3"/>
-                                
+
+                                <MudSlider T="int"
+                                           Label="Intensity"
+                                           Min="0"
+                                           Max="255"
+                                           Step="1"
+                                           @bind-Value="_matrixIntensity"
+                                           Class="mb-3" />
+
                                 <MudButtonGroup Variant="Variant.Outlined" Size="Size.Small" Class="mb-3">
                                     <MudButton OnClick="SetPixelAtPosition" StartIcon="Icons.Material.Filled.Add">
                                         Set Pixel
@@ -207,7 +210,7 @@
                                         Clear All
                                     </MudButton>
                                 </MudButtonGroup>
-                                
+
                                 <MudText Typo="Typo.subtitle2" Class="mb-2">Quick Patterns:</MudText>
                                 <MudButtonGroup Variant="Variant.Text" Size="Size.Small">
                                     <MudButton OnClick="() => DrawPattern(MatrixPattern.Cross)" StartIcon="Icons.Material.Filled.Add">
@@ -230,8 +233,8 @@
                     <MudCardContent>
                         <MudText Typo="Typo.subtitle2" Class="mb-2">Status</MudText>
                         <MudText Typo="Typo.caption" Color="Color.Secondary">
-                            Active Channels: @_activeChannels.Count<br/>
-                            Active Pixels: @_matrixPixels.Count(p => p.Intensity > 0)<br/>
+                            Active Channels: @_activeChannels.Count<br />
+                            Active Pixels: @_matrixPixels.Count(p => p.Intensity > 0)<br />
                             Last Update: @_lastUpdate.ToString("HH:mm:ss")
                         </MudText>
                     </MudCardContent>
@@ -259,13 +262,17 @@
     private DateTime _lastUpdate = DateTime.Now;
 
     // Style properties
-    private string MatrixOverlayStyle => 
+    private string MatrixOverlayStyle =>
         "position: absolute; top: 20%; left: 20%; width: 60%; height: 60%; display: flex; flex-direction: column; gap: 1px; opacity: 0.9;";
 
     protected override async Task OnInitializedAsync()
     {
         InitializeChannelMappings();
         InitializeMatrixPixels();
+
+        await InitializeServicesAsync();
+        await SubscribeToServiceEvents();
+
         await SubscribeToServiceEvents();
     }
 
@@ -275,6 +282,36 @@
         foreach (var channel in channels)
         {
             _channelIntensities[channel] = 0;
+        }
+    }
+
+    private async Task InitializeServicesAsync()
+    {
+        try
+        {
+            Debug.WriteLine("UnifiedGlyphSimulator: Initializing services...");
+
+            // Initialize both services
+            var interfaceResult = await InterfaceService.InitializeAsync();
+            var matrixResult = await MatrixService.InitializeAsync();
+
+            Debug.WriteLine($"Interface service initialized: {interfaceResult}");
+            Debug.WriteLine($"Matrix service initialized: {matrixResult}");
+
+            // Register device if initialization successful
+            if (interfaceResult || matrixResult)
+            {
+                await InterfaceService.RegisterDeviceAsync(_selectedDevice);
+                await MatrixService.RegisterDeviceAsync(_selectedDevice);
+                Debug.WriteLine($"Services registered for device: {_selectedDevice}");
+            }
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Service initialization failed: {ex.Message}");
+            Snackbar.Add($"Service initialization failed: {ex.Message}", Severity.Error);
         }
     }
 
@@ -305,13 +342,6 @@
     private void OnMatrixConnectionChanged(object? sender, bool isConnected)
     {
         Debug.WriteLine($"Matrix connection changed: {isConnected}");
-        InvokeAsync(StateHasChanged);
-    }
-
-    private void OnMatrixFrameUpdated(object? sender, GlyphMatrixUpdateEventArgs e)
-    {
-        Debug.WriteLine($"Matrix frame updated: {e.Description}");
-        _lastUpdate = DateTime.Now;
         InvokeAsync(StateHasChanged);
     }
 
@@ -356,6 +386,18 @@
     // Channel Management
     private async Task ToggleChannel(string channel)
     {
+        if (!InterfaceService.IsConnected)
+        {
+            Debug.WriteLine("Interface service not connected, attempting to initialize...");
+            await InterfaceService.InitializeAsync();
+            await InterfaceService.RegisterDeviceAsync(_selectedDevice);
+        }
+
+        if (InterfaceService.IsConnected && !InterfaceService.IsSessionOpen)
+        {
+            await InterfaceService.OpenSessionAsync();
+        }
+
         if (_activeChannels.Contains(channel))
         {
             await SetChannelIntensity(channel, 0);
@@ -366,20 +408,37 @@
         }
     }
 
+    private int GetChannelNumber(string channel) => channel switch
+    {
+        "A" => 1,
+        "B" => 2,
+        "C" => 3,
+        "D" => 4,
+        "E" => 5,
+        _ => 1
+    };
+
     private async Task SetChannelIntensity(string channel, int intensity)
     {
         _channelIntensities[channel] = intensity;
 
+        var channelNumber = GetChannelNumber(channel);
+
         if (intensity > 0)
         {
+            await InterfaceService.ToggleChannelsAsync(channelNumber);
             _activeChannels.Add(channel);
+            _channelIntensities[channel] = intensity;
+            Debug.WriteLine($"Channel {channel} intensity set to {intensity}");
         }
         else
         {
             _activeChannels.Remove(channel);
+            _channelIntensities[channel] = 0;
+            Debug.WriteLine($"Channel {channel} turned off");
         }
+        StateHasChanged();
 
-        // [Inference] Simulate service call
         try
         {
             var channels = GetChannelNumbers(channel);
@@ -467,6 +526,86 @@
         },
         _ => []
     };
+
+    // Add these enhanced pattern testing methods to your UnifiedGlyphSimulator.razor:
+
+    private async Task TestMatrixPattern(MatrixPattern pattern)
+    {
+        try
+        {
+            // ✅ Ensure matrix service is ready
+            if (!MatrixService.IsConnected)
+            {
+                Debug.WriteLine("Matrix service not connected, initializing...");
+                await MatrixService.InitializeAsync();
+                await MatrixService.RegisterDeviceAsync(_selectedDevice);
+            }
+
+            Debug.WriteLine($"Testing matrix pattern: {pattern}");
+
+            // Clear matrix first
+            await MatrixService.TurnOffAsync();
+            await Task.Delay(200); // Brief pause for visual feedback
+
+            // Draw the pattern
+            var success = pattern switch
+            {
+                MatrixPattern.Cross => await MatrixService.DrawShapeAsync(GlyphShape.Cross, 12, 12, 10),
+                MatrixPattern.Circle => await MatrixService.DrawShapeAsync(GlyphShape.Circle, 12, 12, 8),
+                MatrixPattern.Square => await MatrixService.DrawShapeAsync(GlyphShape.Square, 8, 8, 8),
+                _ => false
+            };
+
+            if (success)
+            {
+                Snackbar.Add($"{pattern} pattern displayed successfully", Severity.Success);
+                Debug.WriteLine($"Drew {pattern} pattern successfully");
+            }
+            else
+            {
+                Snackbar.Add($"Failed to display {pattern} pattern", Severity.Error);
+                Debug.WriteLine($"Failed to draw {pattern} pattern");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Pattern test failed: {ex.Message}");
+            Snackbar.Add($"Pattern test failed: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task TestSinglePixel()
+    {
+        try
+        {
+            Debug.WriteLine($"Testing single pixel at ({_matrixX}, {_matrixY}) with intensity {_matrixIntensity}");
+
+            var success = await MatrixService.SetPixelAsync(_matrixX, _matrixY, _matrixIntensity);
+
+            if (success)
+            {
+                Snackbar.Add($"Pixel ({_matrixX}, {_matrixY}) set successfully", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Failed to set pixel", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Pixel test failed: {ex.Message}");
+            Snackbar.Add($"Pixel test failed: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task RefreshDisplay()
+    {
+        Debug.WriteLine("Refreshing display...");
+        _lastUpdate = DateTime.Now;
+        SyncMatrixPixelsFromService();
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
 
     private async Task AnimateAllChannels()
     {
@@ -715,19 +854,54 @@
         MatrixService.ConnectionChanged -= OnMatrixConnectionChanged;
         MatrixService.FrameUpdated -= OnMatrixFrameUpdated;
     }
-}
 
-// Supporting Types
-public enum SimulationMode
-{
-    Interface,
-    Matrix,
-    Unified
-}
+    private string GetMatrixPixelStyle(int intensity)
+    {
+        var opacity = intensity / 255.0;
+        var brightness = Math.Max(0.1, opacity); // Minimum visibility for grid
 
-public enum MatrixPattern
-{
-    Cross,
-    Circle,
-    Square
+        return $@"
+        width: 8px;
+        height: 8px;
+        background-color: rgba(0, 255, 136, {brightness});
+        border: 1px solid rgba(64, 64, 64, 0.3);
+        border-radius: 1px;
+        cursor: pointer;
+        transition: all 0.1s ease;
+    ";
+    }
+
+    private async Task ToggleMatrixPixel(int x, int y)
+    {
+        var pixelIndex = y * IGlyphMatrixService.MatrixWidth + x;
+        var currentIntensity = _matrixPixels[pixelIndex].Intensity;
+        var newIntensity = currentIntensity > 0 ? 0 : 255;
+
+        await MatrixService.SetPixelAsync(x, y, newIntensity);
+        Debug.WriteLine($"Matrix pixel ({x}, {y}) toggled to intensity {newIntensity}");
+    }
+
+    private void OnMatrixFrameUpdated(object? sender, GlyphMatrixUpdateEventArgs e)
+    {
+        Debug.WriteLine($"Matrix frame updated: {e.Description}");
+
+        SyncMatrixPixelsFromService();
+
+        _lastUpdate = DateTime.Now;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void SyncMatrixPixelsFromService()
+    {
+        try
+        {
+            var currentPixels = MatrixService.GetCurrentPixels();
+            Array.Copy(currentPixels, _matrixPixels, IGlyphMatrixService.TotalPixels);
+            Debug.WriteLine("Matrix pixels synced with service state");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to sync matrix pixels: {ex.Message}");
+        }
+    }
 }
