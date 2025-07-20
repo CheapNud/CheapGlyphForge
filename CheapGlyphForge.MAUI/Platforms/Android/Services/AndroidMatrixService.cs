@@ -18,6 +18,9 @@ public partial class AndroidMatrixService : IGlyphMatrixService, IDisposable
     private bool _disposed;
     private TaskCompletionSource<bool>? _connectionTcs;
 
+    private readonly int[] _currentMatrixState = new int[IGlyphMatrixService.TotalPixels];
+    public int[] CurrentMatrix => (int[])_currentMatrixState.Clone();
+
     public AndroidMatrixService()
     {
         _context = Platform.CurrentActivity?.ApplicationContext ??
@@ -143,7 +146,6 @@ public partial class AndroidMatrixService : IGlyphMatrixService, IDisposable
     #endregion
 
     #region Raw Matrix Control
-
     public async Task<bool> SetMatrixFrameAsync(int[] ledData)
     {
         if (!await EnsureServiceReady()) return false;
@@ -161,8 +163,13 @@ public partial class AndroidMatrixService : IGlyphMatrixService, IDisposable
 
             await Task.Run(() => _glyphMatrixManager!.SetMatrixFrame(ledData));
 
-            FrameUpdated?.Invoke(this, new GlyphMatrixUpdateEventArgs("Raw matrix frame set", ledData.Length));
-            Debug.WriteLine("AndroidMatrixService: Matrix frame set successfully");
+            // ✅ Update our internal state tracking
+            Array.Copy(ledData, _currentMatrixState, IGlyphMatrixService.TotalPixels);
+
+            var activePixels = ledData.Count(intensity => intensity > 0);
+            FrameUpdated?.Invoke(this, new GlyphMatrixUpdateEventArgs("Matrix frame updated", activePixels));
+
+            Debug.WriteLine($"AndroidMatrixService: Matrix frame set successfully ({activePixels} active pixels)");
             return true;
         }
         catch (Exception ex)
@@ -187,18 +194,12 @@ public partial class AndroidMatrixService : IGlyphMatrixService, IDisposable
 
             Debug.WriteLine($"AndroidMatrixService: Setting pixel ({x}, {y}) to intensity {intensity}");
 
-            // Get current matrix state and update single pixel
-            var currentMatrix = await GetCurrentMatrixAsync();
-            if (currentMatrix == null)
-            {
-                // If we can't get current state, create new frame with just this pixel
-                currentMatrix = new int[IGlyphMatrixService.TotalPixels];
-            }
-
+            // Update our current state
             var index = IGlyphMatrixService.CoordinateToIndex(x, y);
-            currentMatrix[index] = intensity;
+            _currentMatrixState[index] = intensity;
 
-            return await SetMatrixFrameAsync(currentMatrix);
+            // Send the entire matrix to the device
+            return await SetMatrixFrameAsync(_currentMatrixState);
         }
         catch (Exception ex)
         {
@@ -253,6 +254,9 @@ public partial class AndroidMatrixService : IGlyphMatrixService, IDisposable
             // Create empty matrix (all zeros)
             var emptyMatrix = new int[IGlyphMatrixService.TotalPixels];
             await Task.Run(() => _glyphMatrixManager!.SetMatrixFrame(emptyMatrix));
+
+            // ✅ Clear our internal state
+            Array.Clear(_currentMatrixState);
 
             FrameUpdated?.Invoke(this, new GlyphMatrixUpdateEventArgs("Matrix cleared", 0));
             Debug.WriteLine("AndroidMatrixService: Matrix turned off successfully");
@@ -549,6 +553,25 @@ public partial class AndroidMatrixService : IGlyphMatrixService, IDisposable
     }
 
     #endregion
+
+    #region State Access Implementation
+
+
+    public GlyphPixel[] GetCurrentPixels()
+    {
+        var pixels = new GlyphPixel[IGlyphMatrixService.TotalPixels];
+
+        for (int i = 0; i < IGlyphMatrixService.TotalPixels; i++)
+        {
+            var x = i % IGlyphMatrixService.MatrixWidth;
+            var y = i / IGlyphMatrixService.MatrixWidth;
+            pixels[i] = new GlyphPixel(x, y, _currentMatrixState[i]);
+        }
+
+        return pixels;
+    }
+    #endregion
+
 }
 
 // Callback class for Matrix Manager

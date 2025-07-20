@@ -122,6 +122,8 @@ public interface IGlyphMatrixService
     #endregion
 
     #region Properties
+    int[] CurrentMatrix { get; }
+    GlyphPixel[] GetCurrentPixels();
     /// <summary>
     /// Current connection status
     /// </summary>
@@ -139,4 +141,5 @@ public interface IGlyphMatrixService
     const int MatrixHeight = 25;
     const int TotalPixels = MatrixWidth * MatrixHeight;
     #endregion
+
 }
