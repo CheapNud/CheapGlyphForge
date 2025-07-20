@@ -1,6 +1,7 @@
 ﻿// CheapGlyphForge.MAUI/Services/SimulatorInterfaceService.cs
 using CheapGlyphForge.Core.Interfaces;
 using CheapGlyphForge.Core.Models;
+using CheapGlyphForge.Core.Helpers;
 using System.Diagnostics;
 
 namespace CheapGlyphForge.MAUI.Services;
@@ -252,64 +253,4 @@ public sealed class SimulatorInterfaceService : IGlyphInterfaceService
     /// </summary>
     public bool IsChannelActive(int channel) => _activeChannels.GetValueOrDefault(channel);
     #endregion
-}
-
-/// <summary>
-/// Simulator implementation of IGlyphFrameBuilder for development
-/// </summary>
-internal sealed class SimulatorGlyphFrameBuilder : IGlyphFrameBuilder
-{
-    private readonly List<int> _channels = [];
-    private int _period = 1000;
-    private int _cycles = 1;
-    private int _interval = 0;
-
-    public IGlyphFrameBuilder BuildChannel(int channel)
-    {
-        _channels.Add(channel);
-        Debug.WriteLine($"SimulatorFrameBuilder: Added channel {channel}");
-        return this;
-    }
-
-    public IGlyphFrameBuilder BuildPeriod(int period)
-    {
-        _period = period;
-        Debug.WriteLine($"SimulatorFrameBuilder: Set period to {period}ms");
-        return this;
-    }
-
-    public IGlyphFrameBuilder BuildCycles(int cycles)
-    {
-        _cycles = cycles;
-        Debug.WriteLine($"SimulatorFrameBuilder: Set cycles to {cycles}");
-        return this;
-    }
-
-    public IGlyphFrameBuilder BuildInterval(int interval)
-    {
-        _interval = interval;
-        Debug.WriteLine($"SimulatorFrameBuilder: Set interval to {interval}ms");
-        return this;
-    }
-
-    public IGlyphFrame Build()
-    {
-        Debug.WriteLine($"SimulatorFrameBuilder: Building frame with {_channels.Count} channels");
-        return new SimulatorGlyphFrame([.. _channels], _period, _cycles, _interval);
-    }
-}
-
-/// <summary>
-/// Simulator implementation of IGlyphFrame
-/// </summary>
-internal sealed record SimulatorGlyphFrame(
-    int[] Channels,
-    int Period,
-    int Cycles,
-    int Interval) : IGlyphFrame
-{
-    public int[] GetChannels() => Channels;
-    public int GetPeriod() => Period;
-    public int GetCycles() => Cycles;
-    public int GetInterval() => Interval;
 }

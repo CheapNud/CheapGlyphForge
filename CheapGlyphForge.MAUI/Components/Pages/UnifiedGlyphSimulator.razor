@@ -74,10 +74,9 @@
                     {
                         @foreach (var channel in GetVisibleChannels())
                         {
-                            string style = $@"width: 100%; height: 100%; background-color: {GetChannelColor(channel)}; border-radius: 8px; cursor: pointer; transition: all 0.3s ease;";
+                            string style = $@"width: 100%; height: 100%; background-color: {GetChannelColor(channel)} border-radius: 8px; cursor: pointer; transition: all 0.3s ease;";
                             <div style="@GetChannelStyle(channel)" @onclick="() => ToggleChannel(channel)">
-                                <MudPaper style=@style Elevation="@(GetChannelIntensity(channel) > 0 ? 4 : 1)">
-                                </MudPaper>
+                                <MudPaper Style=@style Elevation="@(GetChannelIntensity(channel) > 0 ? 4 : 1)"></MudPaper>
                             </div>
                         }
                     }
@@ -247,7 +246,7 @@
     private const string PhoneOutlineColor = "#2d2d2d";
     private const string ActiveGlyphColor = "#00ff88";
     private const string InactiveGlyphColor = "#404040";
-    
+
     // State
     private SimulationMode _simulationMode = SimulationMode.Unified;
     private GlyphDeviceType _selectedDevice = GlyphDeviceType.Phone3;
@@ -258,7 +257,7 @@
     private int _matrixY = 12;
     private int _matrixIntensity = 255;
     private DateTime _lastUpdate = DateTime.Now;
-    
+
     // Style properties
     private string MatrixOverlayStyle => 
         "position: absolute; top: 20%; left: 20%; width: 60%; height: 60%; display: flex; flex-direction: column; gap: 1px; opacity: 0.9;";
@@ -311,7 +310,7 @@
 
     private void OnMatrixFrameUpdated(object? sender, GlyphMatrixUpdateEventArgs e)
     {
-        Debug.WriteLine($"Matrix frame updated: {e.Message}");
+        Debug.WriteLine($"Matrix frame updated: {e.Description}");
         _lastUpdate = DateTime.Now;
         InvokeAsync(StateHasChanged);
     }
@@ -321,7 +320,7 @@
     {
         _simulationMode = mode;
         Debug.WriteLine($"Simulation mode changed to: {mode}");
-        
+
         if (mode == SimulationMode.Interface)
         {
             await ClearMatrixPixels();
@@ -330,7 +329,7 @@
         {
             await TurnOffAllChannels();
         }
-        
+
         StateHasChanged();
     }
 
@@ -370,7 +369,7 @@
     private async Task SetChannelIntensity(string channel, int intensity)
     {
         _channelIntensities[channel] = intensity;
-        
+
         if (intensity > 0)
         {
             _activeChannels.Add(channel);
@@ -392,7 +391,7 @@
             {
                 await InterfaceService.TurnOffAsync();
             }
-            
+
             Debug.WriteLine($"Channel {channel} intensity set to {intensity}");
             _lastUpdate = DateTime.Now;
         }
@@ -411,7 +410,7 @@
     {
         var intensity = GetChannelIntensity(channel);
         if (intensity == 0) return InactiveGlyphColor;
-        
+
         var alpha = Math.Max(0.3, intensity / 255.0);
         return $"rgba(0, 255, 136, {alpha:F2})";
     }
@@ -481,7 +480,7 @@
                 _activeChannels.Add(channel);
                 _channelIntensities[channel] = 255;
             }
-            
+
             Snackbar.Add("Animation started for all channels", Severity.Success);
             _lastUpdate = DateTime.Now;
         }
@@ -490,7 +489,7 @@
             Debug.WriteLine($"Animation failed: {ex.Message}");
             Snackbar.Add("Failed to animate channels", Severity.Error);
         }
-        
+
         StateHasChanged();
     }
 
@@ -500,12 +499,12 @@
         {
             await InterfaceService.TurnOffAsync();
             _activeChannels.Clear();
-            
+
             foreach (var channel in _channelIntensities.Keys.ToList())
             {
                 _channelIntensities[channel] = 0;
             }
-            
+
             Debug.WriteLine("All channels turned off");
             _lastUpdate = DateTime.Now;
         }
@@ -514,7 +513,7 @@
             Debug.WriteLine($"Failed to turn off channels: {ex.Message}");
             Snackbar.Add("Failed to turn off channels", Severity.Warning);
         }
-        
+
         StateHasChanged();
     }
 
@@ -524,7 +523,7 @@
         var index = y * IGlyphMatrixService.MatrixWidth + x;
         var currentIntensity = _matrixPixels[index].Intensity;
         var newIntensity = currentIntensity > 0 ? 0 : 255;
-        
+
         await SetMatrixPixel(x, y, newIntensity);
     }
 
@@ -532,7 +531,7 @@
     {
         var index = y * IGlyphMatrixService.MatrixWidth + x;
         _matrixPixels[index] = new GlyphPixel(x, y, intensity);
-        
+
         try
         {
             await MatrixService.SetPixelAsync(x, y, intensity);
@@ -544,7 +543,7 @@
             Debug.WriteLine($"Failed to set matrix pixel: {ex.Message}");
             Snackbar.Add($"Failed to set pixel ({x}, {y})", Severity.Warning);
         }
-        
+
         StateHasChanged();
     }
 
@@ -558,14 +557,14 @@
         try
         {
             await MatrixService.TurnOffAsync();
-            
+
             for (int i = 0; i < IGlyphMatrixService.TotalPixels; i++)
             {
                 var x = i % IGlyphMatrixService.MatrixWidth;
                 var y = i / IGlyphMatrixService.MatrixWidth;
                 _matrixPixels[i] = new GlyphPixel(x, y, 0);
             }
-            
+
             Debug.WriteLine("Matrix cleared");
             _lastUpdate = DateTime.Now;
         }
@@ -574,7 +573,7 @@
             Debug.WriteLine($"Failed to clear matrix: {ex.Message}");
             Snackbar.Add("Failed to clear matrix", Severity.Warning);
         }
-        
+
         StateHasChanged();
     }
 
@@ -591,13 +590,13 @@
         try
         {
             await MatrixService.SetPixelsAsync(pixels);
-            
+
             foreach (var pixel in pixels)
             {
                 var index = pixel.Y * IGlyphMatrixService.MatrixWidth + pixel.X;
                 _matrixPixels[index] = pixel;
             }
-            
+
             Debug.WriteLine($"Drew {pattern} pattern with {pixels.Count()} pixels");
             _lastUpdate = DateTime.Now;
         }
@@ -606,7 +605,7 @@
             Debug.WriteLine($"Failed to draw pattern: {ex.Message}");
             Snackbar.Add($"Failed to draw {pattern} pattern", Severity.Warning);
         }
-        
+
         StateHasChanged();
     }
 
@@ -616,7 +615,7 @@
         var intensity = _matrixPixels[index].Intensity;
         var alpha = intensity / 255.0;
         var color = intensity > 0 ? $"rgba(0, 255, 136, {alpha:F2})" : "rgba(64, 64, 64, 0.3)";
-        
+
         return $"width: calc(100% / 25); height: calc(100% / 25); background-color: {color}; cursor: pointer; transition: all 0.2s ease; border-radius: 1px;";
     }
 
@@ -625,26 +624,26 @@
     {
         var pixels = new List<GlyphPixel>();
         var halfSize = size / 2;
-        
+
         // Horizontal line
         for (int x = Math.Max(0, centerX - halfSize); x <= Math.Min(24, centerX + halfSize); x++)
         {
             pixels.Add(new GlyphPixel(x, centerY, 255));
         }
-        
+
         // Vertical line
         for (int y = Math.Max(0, centerY - halfSize); y <= Math.Min(24, centerY + halfSize); y++)
         {
             pixels.Add(new GlyphPixel(centerX, y, 255));
         }
-        
+
         return pixels;
     }
 
     private IEnumerable<GlyphPixel> GenerateCirclePattern(int centerX, int centerY, int radius)
     {
         var pixels = new List<GlyphPixel>();
-        
+
         for (int x = Math.Max(0, centerX - radius); x <= Math.Min(24, centerX + radius); x++)
         {
             for (int y = Math.Max(0, centerY - radius); y <= Math.Min(24, centerY + radius); y++)
@@ -656,14 +655,14 @@
                 }
             }
         }
-        
+
         return pixels;
     }
 
     private IEnumerable<GlyphPixel> GenerateSquarePattern(int startX, int startY, int size)
     {
         var pixels = new List<GlyphPixel>();
-        
+
         for (int x = startX; x < startX + size && x < IGlyphMatrixService.MatrixWidth; x++)
         {
             for (int y = startY; y < startY + size && y < IGlyphMatrixService.MatrixHeight; y++)
@@ -674,7 +673,7 @@
                 }
             }
         }
-        
+
         return pixels;
     }
 
@@ -683,7 +682,7 @@
     {
         var interfaceConnected = InterfaceService.IsConnected;
         var matrixConnected = MatrixService.IsConnected;
-        
+
         if (interfaceConnected && matrixConnected) return "Connected";
         if (interfaceConnected || matrixConnected) return "Partial";
         return "Disconnected";
@@ -693,7 +692,7 @@
     {
         var interfaceConnected = InterfaceService.IsConnected;
         var matrixConnected = MatrixService.IsConnected;
-        
+
         if (interfaceConnected && matrixConnected) return Color.Success;
         if (interfaceConnected || matrixConnected) return Color.Warning;
         return Color.Error;
@@ -703,9 +702,9 @@
     {
         var interfaceConnected = InterfaceService.IsConnected;
         var matrixConnected = MatrixService.IsConnected;
-        
+
         if (interfaceConnected && matrixConnected) return Icons.Material.Filled.Wifi;
-        if (interfaceConnected || matrixConnected) return Icons.Material.Filled.SignalWifiStatusbarConnectedNoInternet;
+        if (interfaceConnected || matrixConnected) return Icons.Material.Filled.SignalWifiStatusbarConnectedNoInternet4;
         return Icons.Material.Filled.WifiOff;
     }
 
@@ -719,5 +718,16 @@
 }
 
 // Supporting Types
+public enum SimulationMode
+{
+    Interface,
+    Matrix,
+    Unified
+}
 
-
+public enum MatrixPattern
+{
+    Cross,
+    Circle,
+    Square
+}

@@ -234,34 +234,28 @@ public sealed class SimulatorMatrixService : IGlyphMatrixService
 
     public bool ValidateMatrixData(int[] ledData)
     {
-        return ledData != null && ledData.Length == TotalPixels;
+        return ledData != null && ledData.Length == IGlyphMatrixService.TotalPixels;
     }
     #endregion
 
     #region Helper Methods
     private static bool IsValidCoordinate(int x, int y)
     {
-        return x >= 0 && x < MatrixWidth && y >= 0 && y < MatrixHeight;
+        return x >= 0 && x < IGlyphMatrixService.MatrixWidth && y >= 0 && y < IGlyphMatrixService.MatrixHeight;
     }
 
-    private static int CoordinateToIndex(int x, int y)
-    {
-        return y * MatrixWidth + x;
-    }
+    private static int CoordinateToIndex(int x, int y) => IGlyphMatrixService.CoordinateToIndex(x, y);
 
-    private static (int x, int y) IndexToCoordinate(int index)
-    {
-        return (index % MatrixWidth, index / MatrixWidth);
-    }
+    private static (int x, int y) IndexToCoordinate(int index) => IGlyphMatrixService.IndexToCoordinate(index);
 
     // Pattern Generation Methods
     private static IEnumerable<GlyphPixel> GenerateCirclePixels(int centerX, int centerY, int radius)
     {
         var pixels = new List<GlyphPixel>();
 
-        for (int x = Math.Max(0, centerX - radius); x <= Math.Min(MatrixWidth - 1, centerX + radius); x++)
+        for (int x = Math.Max(0, centerX - radius); x <= Math.Min(IGlyphMatrixService.MatrixWidth - 1, centerX + radius); x++)
         {
-            for (int y = Math.Max(0, centerY - radius); y <= Math.Min(MatrixHeight - 1, centerY + radius); y++)
+            for (int y = Math.Max(0, centerY - radius); y <= Math.Min(IGlyphMatrixService.MatrixHeight - 1, centerY + radius); y++)
             {
                 var distance = Math.Sqrt(Math.Pow(x - centerX, 2) + Math.Pow(y - centerY, 2));
                 if (distance <= radius)
@@ -278,9 +272,9 @@ public sealed class SimulatorMatrixService : IGlyphMatrixService
     {
         var pixels = new List<GlyphPixel>();
 
-        for (int x = startX; x < startX + size && x < MatrixWidth; x++)
+        for (int x = startX; x < startX + size && x < IGlyphMatrixService.MatrixWidth; x++)
         {
-            for (int y = startY; y < startY + size && y < MatrixHeight; y++)
+            for (int y = startY; y < startY + size && y < IGlyphMatrixService.MatrixHeight; y++)
             {
                 if (x >= 0 && y >= 0)
                 {
@@ -298,9 +292,9 @@ public sealed class SimulatorMatrixService : IGlyphMatrixService
 
         if (horizontal)
         {
-            for (int x = startX; x < startX + length && x < MatrixWidth; x++)
+            for (int x = startX; x < startX + length && x < IGlyphMatrixService.MatrixWidth; x++)
             {
-                if (x >= 0 && startY >= 0 && startY < MatrixHeight)
+                if (x >= 0 && startY >= 0 && startY < IGlyphMatrixService.MatrixHeight)
                 {
                     pixels.Add(new GlyphPixel(x, startY, 255));
                 }
@@ -308,9 +302,9 @@ public sealed class SimulatorMatrixService : IGlyphMatrixService
         }
         else
         {
-            for (int y = startY; y < startY + length && y < MatrixHeight; y++)
+            for (int y = startY; y < startY + length && y < IGlyphMatrixService.MatrixHeight; y++)
             {
-                if (startX >= 0 && startX < MatrixWidth && y >= 0)
+                if (startX >= 0 && startX < IGlyphMatrixService.MatrixWidth && y >= 0)
                 {
                     pixels.Add(new GlyphPixel(startX, y, 255));
                 }
@@ -339,9 +333,8 @@ public sealed class SimulatorMatrixService : IGlyphMatrixService
         var pixels = new List<GlyphPixel>();
 
         // Simple text simulation - create a pattern based on text length
-        var centerX = MatrixWidth / 2;
-        var centerY = MatrixHeight / 2;
-        var patternSize = Math.Min(text.Length * 2, 15);
+        var centerX = IGlyphMatrixService.MatrixWidth / 2;
+        var centerY = IGlyphMatrixService.MatrixHeight / 2;
 
         for (int i = 0; i < text.Length && i < 12; i++)
         {
@@ -360,8 +353,8 @@ public sealed class SimulatorMatrixService : IGlyphMatrixService
     private IEnumerable<GlyphPixel> GenerateAnimationFrame(GlyphAnimation animation, int step, int totalSteps)
     {
         var progress = (double)step / totalSteps;
-        var centerX = MatrixWidth / 2;
-        var centerY = MatrixHeight / 2;
+        var centerX = IGlyphMatrixService.MatrixWidth / 2;
+        var centerY = IGlyphMatrixService.MatrixHeight / 2;
 
         return animation switch
         {
@@ -376,10 +369,10 @@ public sealed class SimulatorMatrixService : IGlyphMatrixService
     {
         var pixels = new List<GlyphPixel>();
 
-        for (int x = 0; x < MatrixWidth; x++)
+        for (int x = 0; x < IGlyphMatrixService.MatrixWidth; x++)
         {
-            var waveHeight = (int)(Math.Sin((x + progress * 50) * 0.5) * 5 + MatrixHeight / 2);
-            if (waveHeight >= 0 && waveHeight < MatrixHeight)
+            var waveHeight = (int)(Math.Sin((x + progress * 50) * 0.5) * 5 + IGlyphMatrixService.MatrixHeight / 2);
+            if (waveHeight >= 0 && waveHeight < IGlyphMatrixService.MatrixHeight)
             {
                 pixels.Add(new GlyphPixel(x, waveHeight, 200));
             }
@@ -391,8 +384,8 @@ public sealed class SimulatorMatrixService : IGlyphMatrixService
     private IEnumerable<GlyphPixel> GenerateSpiralPixels(double progress)
     {
         var pixels = new List<GlyphPixel>();
-        var centerX = MatrixWidth / 2;
-        var centerY = MatrixHeight / 2;
+        var centerX = IGlyphMatrixService.MatrixWidth / 2;
+        var centerY = IGlyphMatrixService.MatrixHeight / 2;
         var maxRadius = Math.Min(centerX, centerY);
 
         for (double angle = 0; angle < Math.PI * 4; angle += 0.3)
