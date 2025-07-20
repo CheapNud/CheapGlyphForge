@@ -7,7 +7,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build-core-and-android:
+  build-windows-android:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -17,32 +17,19 @@ jobs:
       with:
         dotnet-version: 9.0.x
     
-    # Only install Android workload to avoid iOS conflicts
+    # Only install Android workloads for this runner
     - name: Install Android workload
       run: dotnet workload install android
     
-    # Build Core library first (platform-agnostic)
-    - name: Build Core
-      run: |
-        dotnet restore CheapGlyphForge.Core/CheapGlyphForge.Core.csproj
-        dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --no-restore --configuration Release
+    - name: Restore dependencies
+      run: dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj
     
-    # Build Matrix binding (Android only) 
-    - name: Build Matrix Binding
-      run: |
-        dotnet restore CheapGlyphForge.GlyphMatrix.Binding/CheapGlyphForge.GlyphMatrix.Binding.csproj
-        dotnet build CheapGlyphForge.GlyphMatrix.Binding/CheapGlyphForge.GlyphMatrix.Binding.csproj --no-restore --configuration Release
-    
-    # Build MAUI project targeting only Android
-    - name: Build MAUI Android
-      run: |
-        dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj
-        dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net9.0-android --no-restore --configuration Release
+    # Build only Android framework
+    - name: Build Android
+      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net9.0-android --no-restore --configuration Release
 
-  # Optional: Windows build (if you need Windows validation)
   build-windows:
     runs-on: windows-latest
-    if: false  # Disable for now, enable when needed
     steps:
     - uses: actions/checkout@v4
     
@@ -51,7 +38,60 @@ jobs:
       with:
         dotnet-version: 9.0.x
     
+    # Install Windows workload
+    - name: Install Windows workload
+      run: dotnet workload install maccatalyst
+    
+    - name: Restore dependencies
+      run: dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj
+    
+    # Build only Windows framework  
     - name: Build Windows
+      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net9.0-windows10.0.19041.0 --no-restore --configuration Release
+
+  build-ios-maccatalyst:
+    runs-on: macos-14  # Use macOS 14 which has Xcode 16.x
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+    
+    # Install iOS/MacCatalyst workloads
+    - name: Install iOS and MacCatalyst workloads
       run: |
-        dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj
-        dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net9.0-windows10.0.19041.0 --no-restore --configuration Release
+        dotnet workload install ios
+        dotnet workload install maccatalyst
+    
+    - name: Restore dependencies
+      run: dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj
+    
+    # Build iOS framework
+    - name: Build iOS
+      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net9.0-ios --no-restore --configuration Release
+    
+    # Build MacCatalyst framework
+    - name: Build MacCatalyst
+      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net9.0-maccatalyst --no-restore --configuration Release
+
+  # Optional: Core library build verification (cross-platform)
+  build-core:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+    
+    - name: Restore Core dependencies
+      run: dotnet restore CheapGlyphForge.Core/CheapGlyphForge.Core.csproj
+    
+    - name: Build Core library
+      run: dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --no-restore --configuration Release
+    
+    - name: Test Core library
+      run: dotnet test CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --no-build --configuration Release
