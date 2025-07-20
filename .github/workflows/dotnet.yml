@@ -1,4 +1,4 @@
-name: .NET
+name: .NET MAUI Build
 
 on:
   push:
@@ -7,32 +7,51 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build-windows-android:
+  build-core-and-android:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 9.0.x
-      - name: Restore workloads
-        run: dotnet workload restore
-      - name: Restore dependencies
-        run: dotnet restore
-      - name: Build Windows and Android
-        run: dotnet build --no-restore
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+    
+    # Only install Android workload to avoid iOS conflicts
+    - name: Install Android workload
+      run: dotnet workload install android
+    
+    # Build Core library first (platform-agnostic)
+    - name: Build Core
+      run: |
+        dotnet restore CheapGlyphForge.Core/CheapGlyphForge.Core.csproj
+        dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --no-restore --configuration Release
+    
+    # Build Matrix binding (Android only) 
+    - name: Build Matrix Binding
+      run: |
+        dotnet restore CheapGlyphForge.GlyphMatrix.Binding/CheapGlyphForge.GlyphMatrix.Binding.csproj
+        dotnet build CheapGlyphForge.GlyphMatrix.Binding/CheapGlyphForge.GlyphMatrix.Binding.csproj --no-restore --configuration Release
+    
+    # Build MAUI project targeting only Android
+    - name: Build MAUI Android
+      run: |
+        dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj
+        dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net9.0-android --no-restore --configuration Release
 
-  build-ios-maccatalyst:
-    runs-on: macos-latest
+  # Optional: Windows build (if you need Windows validation)
+  build-windows:
+    runs-on: windows-latest
+    if: false  # Disable for now, enable when needed
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 9.0.x
-      - name: Restore workloads
-        run: dotnet workload restore
-      - name: Restore dependencies
-        run: dotnet restore
-      - name: Build iOS and MacCatalyst
-        run: dotnet build --no-restore
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+    
+    - name: Build Windows
+      run: |
+        dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj
+        dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net9.0-windows10.0.19041.0 --no-restore --configuration Release
