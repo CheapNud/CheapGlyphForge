@@ -18,7 +18,7 @@
             <MudItem xs="12" md="8">
                 <MudText Typo="Typo.h4" Class="mb-2">🔆 Unified Glyph Simulator</MudText>
                 <MudText Typo="Typo.body1" Color="Color.Secondary">
-                    Design glyphs, experiment with matrix (Phone 3), and preview combined timing sequences
+                    Simulate Nothing Phone LED Glyphs and Matrix displays. Phone (3) features Matrix-only technology.
                 </MudText>
             </MudItem>
             <MudItem xs="12" md="4" Class="text-right">
@@ -40,230 +40,254 @@
     </MudPaper>
 
     <!-- 🐧 KOWALSKI'S TABBED INTERFACE MASTERPIECE -->
-    <MudTabs Elevation="4" 
-             Rounded="true" 
-             Color="Color.Primary" 
+    <MudTabs Elevation="4"
+             Rounded="true"
+             Color="Color.Primary"
              Class="mb-4"
              ActivePanelIndex="@_activeTabIndex"
              ActivePanelIndexChanged="OnTabChanged"
              KeepPanelsAlive="true">
-        
-        <!-- 🎨 Tab 1: Glyph Designer - Always Available -->
-        <MudTabPanel Text="Glyph Designer" 
+
+        <!-- 🎨 Tab 1: Glyph Designer - Available for glyph-capable devices -->
+        <MudTabPanel Text="@GetGlyphTabText()"
                      Icon="@Icons.Material.Filled.LightMode"
-                     ID=@("glyph-designer")>
-            
+                     ID=@("glyph-designer")
+                     Disabled="@(!HasGlyphs())">
+
             <MudGrid Class="mt-4">
                 <!-- Glyph Visualization Area -->
                 <MudItem xs="12" lg="8">
                     <MudPaper Class="pa-4" Elevation="2">
-                        <MudText Typo="Typo.h6" Class="mb-4">@GetDeviceDisplayName(_selectedDevice) Glyph Design</MudText>
+                        <MudText Typo="Typo.h6" Class="mb-4">@GetGlyphDesignTitle()</MudText>
 
-                        <!-- Phone Outline Container -->
-                        <div style="position: relative; width: 100%; max-width: 400px; margin: 0 auto; aspect-ratio: 0.47;">
+                        @if (!HasGlyphs())
+                        {
+                            <!-- Phone (3) - No Glyph Support Message -->
+                            <MudAlert Severity="Severity.Info" Class="mb-4">
+                                <MudText><strong>@GetDeviceDisplayName(_selectedDevice)</strong> does not have traditional LED glyph strips.</MudText>
+                                <MudText>This device features only the Matrix display. Switch to the <strong>Matrix Playground</strong> tab to explore its capabilities.</MudText>
+                            </MudAlert>
 
-                            <!-- Phone Background -->
-                            <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); border-radius: 24px; border: 2px solid #404040;"></div>
+                            <!-- Future-proofing message -->
+                            <MudPaper Class="pa-4" Style="background-color: rgba(128,128,128,0.1);">
+                                <MudText Typo="Typo.body2" Style="color: #888;">
+                                    <MudIcon Icon="@Icons.Material.Filled.Info" Size="Size.Small" Class="mr-2" />
+                                    Future Nothing Phone models may combine both LED glyphs and Matrix displays.
+                                </MudText>
+                            </MudPaper>
+                        }
+                        else
+                        {
+                            <!-- Phone Outline Container -->
+                            <div style="position: relative; width: 100%; max-width: 400px; margin: 0 auto; aspect-ratio: 0.47;">
 
-                            <!-- 🔥 KOWALSKI'S REALISTIC LED STRIPS -->
-                            @if (_selectedDevice == GlyphDeviceType.Phone3)
-                            {
-                                <!-- Nothing Phone (3) - Authentic LED Strip Layout -->
-                                
-                                <!-- Channel A: Camera Ring LED Strip -->
-                                <div style="@GetPhone3ChannelAStyle()" @onclick="() => ToggleChannel("A")">
-                                    <div style="@GetLEDStripStyle("A", "ring")"></div>
-                                </div>
-                                
-                                <!-- Channel B: Right Edge Vertical Strip -->
-                                <div style="@GetPhone3ChannelBStyle()" @onclick="() => ToggleChannel("B")">
-                                    <div style="@GetLEDStripStyle("B", "vertical")"></div>
-                                </div>
-                                
-                                <!-- Channel C: Bottom Horizontal Strip -->
-                                <div style="@GetPhone3ChannelCStyle()" @onclick="() => ToggleChannel("C")">
-                                    <div style="@GetLEDStripStyle("C", "horizontal")"></div>
-                                </div>
-                            }
-                            else if (_selectedDevice == GlyphDeviceType.Phone2)
-                            {
-                                <!-- Nothing Phone (2) - Classic 5-Strip Layout -->
-                                
-                                <!-- Channel A: Top Camera Ring -->
-                                <div style="@GetPhone2ChannelAStyle()" @onclick="() => ToggleChannel("A")">
-                                    <div style="@GetLEDStripStyle("A", "ring")"></div>
-                                </div>
-                                
-                                <!-- Channel B: Right Side Strip -->
-                                <div style="@GetPhone2ChannelBStyle()" @onclick="() => ToggleChannel("B")">
-                                    <div style="@GetLEDStripStyle("B", "vertical")"></div>
-                                </div>
-                                
-                                <!-- Channel C: Diagonal Strip -->
-                                <div style="@GetPhone2ChannelCStyle()" @onclick="() => ToggleChannel("C")">
-                                    <div style="@GetLEDStripStyle("C", "diagonal")"></div>
-                                </div>
-                                
-                                <!-- Channel D: Exclamation Mark Strip -->
-                                <div style="@GetPhone2ChannelDStyle()" @onclick="() => ToggleChannel("D")">
-                                    <div style="@GetLEDStripStyle("D", "exclamation")"></div>
-                                </div>
-                                
-                                <!-- Channel E: Bottom Dot -->
-                                <div style="@GetPhone2ChannelEStyle()" @onclick="() => ToggleChannel("E")">
-                                    <div style="@GetLEDStripStyle("E", "dot")"></div>
-                                </div>
-                            }
-                            else if (_selectedDevice == GlyphDeviceType.Phone1)
-                            {
-                                <!-- Nothing Phone (1) - Original 4-Strip Design -->
-                                
-                                <!-- Channel A: Top Camera Ring -->
-                                <div style="@GetPhone1ChannelAStyle()" @onclick="() => ToggleChannel("A")">
-                                    <div style="@GetLEDStripStyle("A", "ring")"></div>
-                                </div>
-                                
-                                <!-- Channel B: Right Side Strip -->
-                                <div style="@GetPhone1ChannelBStyle()" @onclick="() => ToggleChannel("B")">
-                                    <div style="@GetLEDStripStyle("B", "vertical")"></div>
-                                </div>
-                                
-                                <!-- Channel C: Bottom Horizontal Strip -->
-                                <div style="@GetPhone1ChannelCStyle()" @onclick="() => ToggleChannel("C")">
-                                    <div style="@GetLEDStripStyle("C", "horizontal")"></div>
-                                </div>
-                                
-                                <!-- Channel D: Left Accent Strip -->
-                                <div style="@GetPhone1ChannelDStyle()" @onclick="() => ToggleChannel("D")">
-                                    <div style="@GetLEDStripStyle("D", "vertical")"></div>
-                                </div>
-                            }
-                            else
-                            {
-                                <!-- Nothing Phone (2a) variants - Simplified 3-Strip Layout -->
-                                
-                                <!-- Channel A: Camera Ring -->
-                                <div style="@GetPhone2aChannelAStyle()" @onclick="() => ToggleChannel("A")">
-                                    <div style="@GetLEDStripStyle("A", "ring")"></div>
-                                </div>
-                                
-                                <!-- Channel B: Side Strip -->
-                                <div style="@GetPhone2aChannelBStyle()" @onclick="() => ToggleChannel("B")">
-                                    <div style="@GetLEDStripStyle("B", "vertical")"></div>
-                                </div>
-                                
-                                <!-- Channel C: Bottom Strip -->
-                                <div style="@GetPhone2aChannelCStyle()" @onclick="() => ToggleChannel("C")">
-                                    <div style="@GetLEDStripStyle("C", "horizontal")"></div>
-                                </div>
-                            }
-                        </div>
+                                <!-- Phone Background -->
+                                <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); border-radius: 24px; border: 2px solid #404040;"></div>
+
+                                <!-- 🔥 KOWALSKI'S REALISTIC LED STRIPS - NO PHONE (3) -->
+                                @if (_selectedDevice == GlyphDeviceType.Phone2)
+                                {
+                                    <!-- Nothing Phone (2) - CORRECTED AUTHENTIC LAYOUT -->
+                                    <!-- Channel A: Camera Ring (top left) -->
+                                    <div style="@GetPhone2ChannelAStyle()" @onclick="@(() => ToggleChannel("A"))">
+                                        <div style="@GetLEDStripStyle("A", "ring")"></div>
+                                    </div>
+
+                                    <!-- Channel B: Diagonal Line (top right) -->
+                                    <div style="@GetPhone2ChannelBStyle()" @onclick="@(() => ToggleChannel("B"))">
+                                        <div style="@GetLEDStripStyle("B", "diagonal")"></div>
+                                    </div>
+
+                                    <!-- Channel C: Large Center Circle -->
+                                    <div style="@GetPhone2ChannelCStyle()" @onclick="@(() => ToggleChannel("C"))">
+                                        <div style="@GetLEDStripStyle("C", "circle")"></div>
+                                    </div>
+
+                                    <!-- Channel D: Vertical Line (bottom center) -->
+                                    <div style="@GetPhone2ChannelDStyle()" @onclick="@(() => ToggleChannel("D"))">
+                                        <div style="@GetLEDStripStyle("D", "vertical")"></div>
+                                    </div>
+
+                                    <!-- Channel E: Small Dot (bottom) -->
+                                    <div style="@GetPhone2ChannelEStyle()" @onclick="@(() => ToggleChannel("E"))">
+                                        <div style="@GetLEDStripStyle("E", "dot")"></div>
+                                    </div>
+                                }
+                                else if (_selectedDevice == GlyphDeviceType.Phone1)
+                                {
+                                    <!-- Nothing Phone (1) - CORRECTED AUTHENTIC LAYOUT -->
+                                    <!-- Channel A: Camera Ring on LEFT -->
+                                    <div style="@GetPhone1ChannelAStyle()" @onclick="@(() => ToggleChannel("A"))">
+                                        <div style="@GetLEDStripStyle("A", "ring")"></div>
+                                    </div>
+
+                                    <!-- Channel B: Diagonal Strip on RIGHT -->
+                                    <div style="@GetPhone1ChannelBStyle()" @onclick="@(() => ToggleChannel("B"))">
+                                        <div style="@GetLEDStripStyle("B", "diagonal")"></div>
+                                    </div>
+
+                                    <!-- Channel C: Horizontal Bar at BOTTOM -->
+                                    <div style="@GetPhone1ChannelCStyle()" @onclick="@(() => ToggleChannel("C"))">
+                                        <div style="@GetLEDStripStyle("C", "horizontal")"></div>
+                                    </div>
+
+                                    <!-- Channel D: Square in MIDDLE -->
+                                    <div style="@GetPhone1ChannelDStyle()" @onclick="@(() => ToggleChannel("D"))">
+                                        <div style="@GetLEDStripStyle("D", "square")"></div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <!-- Nothing Phone (2a) variants - CORRECTED AUTHENTIC LAYOUT -->
+                                    <!-- Channel A: Camera Outline (top area) -->
+                                    <div style="@GetPhone2aChannelAStyle()" @onclick="@(() => ToggleChannel("A"))">
+                                        <div style="@GetLEDStripStyle("A", "ring")"></div>
+                                    </div>
+
+                                    <!-- Channel B: Vertical Lines (right side) -->
+                                    <div style="@GetPhone2aChannelBStyle()" @onclick="@(() => ToggleChannel("B"))">
+                                        <div style="@GetLEDStripStyle("B", "vertical")"></div>
+                                    </div>
+
+                                    <!-- Channel C: Small Red Square (bottom right) -->
+                                    <div style="@GetPhone2aChannelCStyle()" @onclick="@(() => ToggleChannel("C"))">
+                                        <div style="@GetLEDStripStyle("C", "square")"></div>
+                                    </div>
+                                }
+                            </div>
+                        }
                     </MudPaper>
                 </MudItem>
-                
+
                 <!-- Glyph Controls -->
                 <MudItem xs="12" lg="4">
                     <MudPaper Class="pa-4" Elevation="2">
                         <MudText Typo="Typo.h6" Class="mb-4">Glyph Controls</MudText>
-                        
-                        <!-- Individual Channel Controls -->
-                        <MudExpansionPanels Class="mb-4">
-                            <MudExpansionPanel IsExpanded="true">
-                                <TitleContent>
-                                    <div style="display: flex; align-items: center;">
-                                        <MudIcon Icon="Icons.Material.Filled.Lightbulb" Class="mr-3" />
-                                        <MudText>Interface Channels</MudText>
-                                    </div>
-                                </TitleContent>
-                                <ChildContent>
-                                    @foreach (var channel in GetVisibleChannels())
-                                    {
-                                        <MudGrid AlignItems="Center" Class="mb-2">
-                                            <MudItem xs="3">
-                                                <MudButton Variant="Variant.Outlined"
-                                                           Color="Color.Primary"
-                                                           Size="Size.Small"
-                                                           OnClick="() => ToggleChannel(channel)">
-                                                    @channel
-                                                </MudButton>
-                                            </MudItem>
-                                            <MudItem xs="6">
-                                                <MudSlider T="int"
-                                                           Min="0"
-                                                           Max="255"
-                                                           Step="1"
-                                                           Value="@GetChannelIntensity(channel)"
-                                                           ValueChanged="(int value) => SetChannelIntensity(channel, value)"
-                                                           Class="mx-2" />
-                                            </MudItem>
-                                            <MudItem xs="3">
-                                                <MudText Typo="Typo.caption">@GetChannelIntensity(channel)</MudText>
-                                            </MudItem>
-                                        </MudGrid>
-                                    }
 
-                                    <MudDivider Class="my-3" />
+                        @if (!HasGlyphs())
+                        {
+                            <!-- Phone (3) - No Glyph Controls Available -->
+                            <MudAlert Severity="Severity.Warning" Class="mb-4">
+                                <MudText><strong>@GetDeviceDisplayName(_selectedDevice)</strong> does not support glyph controls.</MudText>
+                                <MudText>Switch to the <strong>Matrix Playground</strong> tab for device-specific controls.</MudText>
+                            </MudAlert>
+                        }
+                        else
+                        {
+                            <!-- Individual Channel Controls -->
+                            <MudExpansionPanels Class="mb-4">
+                                <MudExpansionPanel IsExpanded="true">
+                                    <TitleContent>
+                                        <div style="display: flex; align-items: center;">
+                                            <MudIcon Icon="Icons.Material.Filled.Lightbulb" Class="mr-3" />
+                                            <MudText>Interface Channels</MudText>
+                                        </div>
+                                    </TitleContent>
+                                    <ChildContent>
+                                        @foreach (var channel in GetVisibleChannels())
+                                        {
+                                            <MudGrid AlignItems="Center" Class="mb-2">
+                                                <MudItem xs="3">
+                                                    <MudButton Variant="Variant.Outlined"
+                                                               Color="Color.Primary"
+                                                               Size="Size.Small"
+                                                               OnClick="() => ToggleChannel(channel)">
+                                                        @channel
+                                                    </MudButton>
+                                                </MudItem>
+                                                <MudItem xs="6">
+                                                    <MudSlider T="int"
+                                                               Min="0"
+                                                               Max="255"
+                                                               Step="1"
+                                                               Value="@GetChannelIntensity(channel)"
+                                                               ValueChanged="(int value) => SetChannelIntensity(channel, value)"
+                                                               Class="mx-2" />
+                                                </MudItem>
+                                                <MudItem xs="3">
+                                                    <MudText Typo="Typo.caption">@GetChannelIntensity(channel)</MudText>
+                                                </MudItem>
+                                            </MudGrid>
+                                        }
 
-                                    <MudButtonGroup Variant="Variant.Outlined" Size="Size.Small" Class="mb-2">
-                                        <MudButton OnClick="AnimateAllChannels" StartIcon="Icons.Material.Filled.AutoAwesome">
-                                            Animate All
-                                        </MudButton>
-                                        <MudButton OnClick="TurnOffAllChannels" StartIcon="Icons.Material.Filled.PowerOff">
-                                            Turn Off
-                                        </MudButton>
-                                    </MudButtonGroup>
-                                </ChildContent>
-                            </MudExpansionPanel>
-                        </MudExpansionPanels>
+                                        <MudDivider Class="my-3" />
 
-                        <!-- Quick Glyph Patterns -->
-                        <MudText Typo="Typo.subtitle2" Class="mb-2">Quick Patterns</MudText>
-                        <div class="d-flex flex-wrap gap-2">
-                            <MudButton Size="Size.Small" 
-                                       Variant="Variant.Outlined" 
-                                       OnClick="() => ApplyGlyphPattern(GlyphPattern.AllOn)">
-                                All On
-                            </MudButton>
-                            <MudButton Size="Size.Small" 
-                                       Variant="Variant.Outlined" 
-                                       OnClick="() => ApplyGlyphPattern(GlyphPattern.AllOff)">
-                                All Off
-                            </MudButton>
-                            <MudButton Size="Size.Small" 
-                                       Variant="Variant.Outlined" 
-                                       OnClick="() => ApplyGlyphPattern(GlyphPattern.Wave)">
-                                Wave
-                            </MudButton>
-                            <MudButton Size="Size.Small" 
-                                       Variant="Variant.Outlined" 
-                                       OnClick="() => ApplyGlyphPattern(GlyphPattern.Pulse)">
-                                Pulse
-                            </MudButton>
-                        </div>
+                                        <MudButtonGroup Variant="Variant.Outlined" Size="Size.Small" Class="mb-2">
+                                            <MudButton OnClick="AnimateAllChannels" StartIcon="Icons.Material.Filled.AutoAwesome">
+                                                Animate All
+                                            </MudButton>
+                                            <MudButton OnClick="TurnOffAllChannels" StartIcon="Icons.Material.Filled.PowerOff">
+                                                Turn Off
+                                            </MudButton>
+                                        </MudButtonGroup>
+                                    </ChildContent>
+                                </MudExpansionPanel>
+                            </MudExpansionPanels>
+
+                            <!-- Quick Glyph Patterns -->
+                            <MudText Typo="Typo.subtitle2" Class="mb-2">Quick Patterns</MudText>
+                            <div class="d-flex flex-wrap gap-2">
+                                <MudButton Size="Size.Small"
+                                           Variant="Variant.Outlined"
+                                           OnClick="() => ApplyGlyphPattern(GlyphPattern.AllOn)">
+                                    All On
+                                </MudButton>
+                                <MudButton Size="Size.Small"
+                                           Variant="Variant.Outlined"
+                                           OnClick="() => ApplyGlyphPattern(GlyphPattern.AllOff)">
+                                    All Off
+                                </MudButton>
+                                <MudButton Size="Size.Small"
+                                           Variant="Variant.Outlined"
+                                           OnClick="() => ApplyGlyphPattern(GlyphPattern.Wave)">
+                                    Wave
+                                </MudButton>
+                                <MudButton Size="Size.Small"
+                                           Variant="Variant.Outlined"
+                                           OnClick="() => ApplyGlyphPattern(GlyphPattern.Pulse)">
+                                    Pulse
+                                </MudButton>
+                            </div>
+                        }
                     </MudPaper>
                 </MudItem>
             </MudGrid>
         </MudTabPanel>
-        
+
         <!-- 🔥 Tab 2: Matrix Playground - Phone (3) EXCLUSIVE -->
         @if (IsMatrixAvailable())
         {
-            <MudTabPanel Text="Matrix Playground" 
+            <MudTabPanel Text="Matrix Playground"
                          Icon="@Icons.Material.Filled.GridView"
-                         ID="matrix-playground">
-                
+                         ID=@("matrix-playground")>
+
                 <MudGrid Class="mt-4">
                     <!-- Matrix Visualization -->
                     <MudItem xs="12" lg="8">
                         <MudPaper Class="pa-4" Elevation="2">
-                            <MudText Typo="Typo.h6" Class="mb-4">Matrix Playground - Phone (3) Exclusive</MudText>
-                            
+                            <MudText Typo="Typo.h6" Class="mb-4">Matrix Playground - @GetDeviceDisplayName(_selectedDevice)</MudText>
+
+                            @if (_selectedDevice == GlyphDeviceType.Phone3)
+                            {
+                                <MudAlert Severity="Severity.Success" Class="mb-4">
+                                    <MudText><strong>@GetDeviceDisplayName(_selectedDevice)</strong> is the first Nothing Phone with Matrix technology!</MudText>
+                                    <MudText>Explore the 25×25 LED matrix positioned in the top-right of the device.</MudText>
+                                </MudAlert>
+                            }
+                            else
+                            {
+                                <!-- Future device support -->
+                                <MudAlert Severity="Severity.Info" Class="mb-4">
+                                    <MudText>Matrix display support for <strong>@GetDeviceDisplayName(_selectedDevice)</strong>.</MudText>
+                                </MudAlert>
+                            }
+
                             <!-- Phone Outline with Matrix in TOP-RIGHT -->
                             <div style="position: relative; width: 100%; max-width: 400px; margin: 0 auto; aspect-ratio: 0.47;">
-                                
+
                                 <!-- Phone Background -->
                                 <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); border-radius: 24px; border: 2px solid #404040;"></div>
-                                
+
                                 <!-- 🎯 MATRIX POSITIONED IN TOP-RIGHT QUADRANT -->
                                 <div style="@GetMatrixContainerStyle()">
                                     @for (int row = 0; row < IGlyphMatrixService.MatrixHeight; row++)
@@ -292,12 +316,12 @@
                             </div>
                         </MudPaper>
                     </MudItem>
-                    
+
                     <!-- Matrix Controls -->
                     <MudItem xs="12" lg="4">
                         <MudPaper Class="pa-4" Elevation="2">
                             <MudText Typo="Typo.h6" Class="mb-4">Matrix Controls</MudText>
-                            
+
                             <MudExpansionPanels Class="mb-4">
                                 <MudExpansionPanel IsExpanded="true">
                                     <TitleContent>
@@ -352,9 +376,9 @@
                                                 🚑 Force Reinit
                                             </MudButton>
                                         </MudButtonGroup>
-                                        
+
                                         <MudText Typo="Typo.caption" Class="mt-2">@_debugArrayInfo</MudText>
-                                        
+
                                         <MudText Typo="Typo.subtitle2" Class="mb-2">Quick Patterns:</MudText>
                                         <MudButtonGroup Variant="Variant.Text" Size="Size.Small">
                                             <MudButton OnClick="() => DrawPattern(MatrixPattern.Cross)" StartIcon="Icons.Material.Filled.Add">
@@ -375,119 +399,125 @@
                 </MudGrid>
             </MudTabPanel>
         }
-        
+
         <!-- 🎬 Tab 3: Combined Preview -->
-        <MudTabPanel Text="@GetPreviewTabText()" 
+        <MudTabPanel Text="@GetPreviewTabText()"
                      Icon="@Icons.Material.Filled.Preview"
                      ID=@("combined-preview")>
-            
+
             <MudGrid Class="mt-4">
                 <!-- Combined Visualization -->
                 <MudItem xs="12" lg="8">
                     <MudPaper Class="pa-4" Elevation="2">
                         <MudText Typo="Typo.h6" Class="mb-4">@GetPreviewTabText() - @GetDeviceDisplayName(_selectedDevice)</MudText>
-                        
+
+                        @if (_selectedDevice == GlyphDeviceType.Phone3)
+                        {
+                            <!-- Phone (3) - Matrix Only Message -->
+                            <MudAlert Severity="Severity.Info" Class="mb-4">
+                                <MudText><strong>@GetDeviceDisplayName(_selectedDevice)</strong> features only Matrix display technology.</MudText>
+                                <MudText>Use the sequence controls below to create Matrix-only light shows.</MudText>
+                            </MudAlert>
+                        }
+                        else if (HasBothFeatures())
+                        {
+                            <!-- Future phones with both features -->
+                            <MudAlert Severity="Severity.Success" Class="mb-4">
+                                <MudText><strong>@GetDeviceDisplayName(_selectedDevice)</strong> combines both LED Glyphs and Matrix display!</MudText>
+                                <MudText>Create synchronized sequences with both lighting systems.</MudText>
+                            </MudAlert>
+                        }
+                        else
+                        {
+                            <!-- Current phones with only glyphs -->
+                            <MudAlert Severity="Severity.Info" Class="mb-4">
+                                <MudText><strong>@GetDeviceDisplayName(_selectedDevice)</strong> Glyph preview and sequence timing.</MudText>
+                            </MudAlert>
+                        }
+
                         <!-- Phone Outline with BOTH systems -->
                         <div style="position: relative; width: 100%; max-width: 400px; margin: 0 auto; aspect-ratio: 0.47;">
 
                             <!-- Phone Background -->
                             <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); border-radius: 24px; border: 2px solid #404040;"></div>
 
-                            <!-- 🔥 REALISTIC LED STRIPS IN COMBINED PREVIEW -->
-                            @if (_selectedDevice == GlyphDeviceType.Phone3)
+                            <!-- 🔥 DEVICE-SPECIFIC PREVIEW RENDERING -->
+                            <!-- LED Glyphs (only for glyph-capable devices) -->
+                            @if (HasGlyphs())
                             {
-                                <!-- Nothing Phone (3) - Authentic LED Strip Layout -->
-                                
-                                <!-- Channel A: Camera Ring LED Strip -->
-                                <div style="@GetPhone3ChannelAStyle()">
-                                    <div style="@GetLEDStripStyle("A", "ring")"></div>
-                                </div>
-                                
-                                <!-- Channel B: Right Edge Vertical Strip -->
-                                <div style="@GetPhone3ChannelBStyle()">
-                                    <div style="@GetLEDStripStyle("B", "vertical")"></div>
-                                </div>
-                                
-                                <!-- Channel C: Bottom Horizontal Strip -->
-                                <div style="@GetPhone3ChannelCStyle()">
-                                    <div style="@GetLEDStripStyle("C", "horizontal")"></div>
-                                </div>
-                            }
-                            else if (_selectedDevice == GlyphDeviceType.Phone2)
-                            {
-                                <!-- Nothing Phone (2) - Classic 5-Strip Layout -->
-                                
-                                <!-- Channel A: Top Camera Ring -->
-                                <div style="@GetPhone2ChannelAStyle()">
-                                    <div style="@GetLEDStripStyle("A", "ring")"></div>
-                                </div>
-                                
-                                <!-- Channel B: Right Side Strip -->
-                                <div style="@GetPhone2ChannelBStyle()">
-                                    <div style="@GetLEDStripStyle("B", "vertical")"></div>
-                                </div>
-                                
-                                <!-- Channel C: Diagonal Strip -->
-                                <div style="@GetPhone2ChannelCStyle()">
-                                    <div style="@GetLEDStripStyle("C", "diagonal")"></div>
-                                </div>
-                                
-                                <!-- Channel D: Exclamation Mark Strip -->
-                                <div style="@GetPhone2ChannelDStyle()">
-                                    <div style="@GetLEDStripStyle("D", "exclamation")"></div>
-                                </div>
-                                
-                                <!-- Channel E: Bottom Dot -->
-                                <div style="@GetPhone2ChannelEStyle()">
-                                    <div style="@GetLEDStripStyle("E", "dot")"></div>
-                                </div>
-                            }
-                            else if (_selectedDevice == GlyphDeviceType.Phone1)
-                            {
-                                <!-- Nothing Phone (1) - Original 4-Strip Design -->
-                                
-                                <!-- Channel A: Top Camera Ring -->
-                                <div style="@GetPhone1ChannelAStyle()">
-                                    <div style="@GetLEDStripStyle("A", "ring")"></div>
-                                </div>
-                                
-                                <!-- Channel B: Right Side Strip -->
-                                <div style="@GetPhone1ChannelBStyle()">
-                                    <div style="@GetLEDStripStyle("B", "vertical")"></div>
-                                </div>
-                                
-                                <!-- Channel C: Bottom Horizontal Strip -->
-                                <div style="@GetPhone1ChannelCStyle()">
-                                    <div style="@GetLEDStripStyle("C", "horizontal")"></div>
-                                </div>
-                                
-                                <!-- Channel D: Left Accent Strip -->
-                                <div style="@GetPhone1ChannelDStyle()">
-                                    <div style="@GetLEDStripStyle("D", "vertical")"></div>
-                                </div>
-                            }
-                            else
-                            {
-                                <!-- Nothing Phone (2a) variants - Simplified 3-Strip Layout -->
-                                
-                                <!-- Channel A: Camera Ring -->
-                                <div style="@GetPhone2aChannelAStyle()">
-                                    <div style="@GetLEDStripStyle("A", "ring")"></div>
-                                </div>
-                                
-                                <!-- Channel B: Side Strip -->
-                                <div style="@GetPhone2aChannelBStyle()">
-                                    <div style="@GetLEDStripStyle("B", "vertical")"></div>
-                                </div>
-                                
-                                <!-- Channel C: Bottom Strip -->
-                                <div style="@GetPhone2aChannelCStyle()">
-                                    <div style="@GetLEDStripStyle("C", "horizontal")"></div>
-                                </div>
+                                @if (_selectedDevice == GlyphDeviceType.Phone2)
+                                {
+                                    <!-- Nothing Phone (2) - CORRECTED AUTHENTIC LAYOUT -->
+                                    <!-- Channel A: Camera Ring (top left) -->
+                                    <div style="@GetPhone2ChannelAStyle()">
+                                        <div style="@GetLEDStripStyle("A", "ring")"></div>
+                                    </div>
+
+                                    <!-- Channel B: Diagonal Line (top right) -->
+                                    <div style="@GetPhone2ChannelBStyle()">
+                                        <div style="@GetLEDStripStyle("B", "diagonal")"></div>
+                                    </div>
+
+                                    <!-- Channel C: Large Center Circle -->
+                                    <div style="@GetPhone2ChannelCStyle()">
+                                        <div style="@GetLEDStripStyle("C", "circle")"></div>
+                                    </div>
+
+                                    <!-- Channel D: Vertical Line (bottom center) -->
+                                    <div style="@GetPhone2ChannelDStyle()">
+                                        <div style="@GetLEDStripStyle("D", "vertical")"></div>
+                                    </div>
+
+                                    <!-- Channel E: Small Dot (bottom) -->
+                                    <div style="@GetPhone2ChannelEStyle()">
+                                        <div style="@GetLEDStripStyle("E", "dot")"></div>
+                                    </div>
+                                }
+                                else if (_selectedDevice == GlyphDeviceType.Phone1)
+                                {
+                                    <!-- Nothing Phone (1) - CORRECTED AUTHENTIC LAYOUT -->
+                                    <!-- Channel A: Camera Ring on LEFT -->
+                                    <div style="@GetPhone1ChannelAStyle()">
+                                        <div style="@GetLEDStripStyle("A", "ring")"></div>
+                                    </div>
+
+                                    <!-- Channel B: Diagonal Strip on RIGHT -->
+                                    <div style="@GetPhone1ChannelBStyle()">
+                                        <div style="@GetLEDStripStyle("B", "diagonal")"></div>
+                                    </div>
+
+                                    <!-- Channel C: Horizontal Bar at BOTTOM -->
+                                    <div style="@GetPhone1ChannelCStyle()">
+                                        <div style="@GetLEDStripStyle("C", "horizontal")"></div>
+                                    </div>
+
+                                    <!-- Channel D: Square in MIDDLE -->
+                                    <div style="@GetPhone1ChannelDStyle()">
+                                        <div style="@GetLEDStripStyle("D", "square")"></div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <!-- Nothing Phone (2a) variants - CORRECTED AUTHENTIC LAYOUT -->
+                                    <!-- Channel A: Camera Outline (top area) -->
+                                    <div style="@GetPhone2aChannelAStyle()">
+                                        <div style="@GetLEDStripStyle("A", "ring")"></div>
+                                    </div>
+
+                                    <!-- Channel B: Vertical Lines (right side) -->
+                                    <div style="@GetPhone2aChannelBStyle()">
+                                        <div style="@GetLEDStripStyle("B", "vertical")"></div>
+                                    </div>
+
+                                    <!-- Channel C: Small Red Square (bottom right) -->
+                                    <div style="@GetPhone2aChannelCStyle()">
+                                        <div style="@GetLEDStripStyle("C", "square")"></div>
+                                    </div>
+                                }
                             }
 
-                            <!-- Matrix Overlay (Phone 3 only) -->
-                            @if (IsMatrixAvailable())
+                            <!-- Matrix Overlay (only for matrix-capable devices) -->
+                            @if (HasMatrix())
                             {
                                 <div style="@GetMatrixContainerStyle()">
                                     @for (int row = 0; row < IGlyphMatrixService.MatrixHeight; row++)
@@ -515,12 +545,12 @@
                         </div>
                     </MudPaper>
                 </MudItem>
-                
+
                 <!-- Combined Controls & Timing -->
                 <MudItem xs="12" lg="4">
                     <MudPaper Class="pa-4" Elevation="2">
                         <MudText Typo="Typo.h6" Class="mb-4">Timing & Synchronization</MudText>
-                        
+
                         <!-- Timing Engine Controls -->
                         <MudExpansionPanels Class="mb-4">
                             <MudExpansionPanel IsExpanded="true">
@@ -539,7 +569,7 @@
                                                Value="@_sequenceDuration"
                                                ValueChanged="(int value) => _sequenceDuration = value"
                                                Class="mb-3" />
-                                    
+
                                     <MudSlider T="int"
                                                Label="Repeat Count"
                                                Min="1"
@@ -548,22 +578,22 @@
                                                Value="@_repeatCount"
                                                ValueChanged="(int value) => _repeatCount = value"
                                                Class="mb-3" />
-                                    
+
                                     <MudButtonGroup Variant="Variant.Filled" Class="mb-3">
-                                        <MudButton Color="Color.Success" 
+                                        <MudButton Color="Color.Success"
                                                    StartIcon="Icons.Material.Filled.PlayArrow"
                                                    OnClick="PlayCombinedSequence"
                                                    Disabled="@_isSequencePlaying">
                                             Play Sequence
                                         </MudButton>
-                                        <MudButton Color="Color.Error" 
+                                        <MudButton Color="Color.Error"
                                                    StartIcon="Icons.Material.Filled.Stop"
                                                    OnClick="StopSequence"
                                                    Disabled="@(!_isSequencePlaying)">
                                             Stop
                                         </MudButton>
                                     </MudButtonGroup>
-                                    
+
                                     @if (_isSequencePlaying)
                                     {
                                         <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-3" />
@@ -576,12 +606,20 @@
                         <!-- Status Information -->
                         <MudCard Class="mt-4">
                             <MudCardContent>
-                                <MudText Typo="Typo.subtitle2" Class="mb-2">Status</MudText>
+                                <MudText Typo="Typo.subtitle2" Class="mb-2">Device Status</MudText>
                                 <MudText Typo="Typo.caption" Color="Color.Secondary">
-                                    Active Channels: @_activeChannels.Count<br />
-                                    @if (IsMatrixAvailable())
+                                    Device: @GetDeviceDisplayName(_selectedDevice)<br />
+                                    @if (HasGlyphs())
+                                    {
+                                        <text>Active Channels: @_activeChannels.Count<br /></text>
+                                    }
+                                    @if (HasMatrix())
                                     {
                                         <text>Active Pixels: @_matrixPixels.Count(p => p.Intensity > 0)<br /></text>
+                                    }
+                                    @if (!HasGlyphs() && !HasMatrix())
+                                    {
+                                        <text>No active features<br /></text>
                                     }
                                     Last Update: @_lastUpdate.ToString("HH:mm:ss")
                                 </MudText>
@@ -591,7 +629,7 @@
                 </MudItem>
             </MudGrid>
         </MudTabPanel>
-        
+
     </MudTabs>
 </MudContainer>
 
@@ -602,8 +640,8 @@
     private const string InactiveGlyphColor = "#404040";
 
     // Tab Management
-    private int _activeTabIndex = 0;
-    
+    private int _activeTabIndex = 1; // Start on Matrix tab since Phone3 is default
+
     // Timing Engine Properties
     private int _sequenceDuration = 1000;
     private int _repeatCount = 1;
@@ -626,14 +664,14 @@
     private string GetMatrixContainerStyle()
     {
         return @"
-            position: absolute; 
-            top: 15%; 
-            right: 10%; 
-            width: 35%; 
-            height: 35%; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 1px; 
+            position: absolute;
+            top: 15%;
+            right: 10%;
+            width: 35%;
+            height: 35%;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
             opacity: 0.9;
             border: 1px solid rgba(0, 255, 136, 0.3);
             border-radius: 4px;
@@ -641,12 +679,30 @@
         ";
     }
 
-    // 📱 Device-specific logic
-    private bool IsMatrixAvailable() => _selectedDevice == GlyphDeviceType.Phone3;
-    
+    // 📱 Device capability detection
+    private bool HasGlyphs() => _selectedDevice != GlyphDeviceType.Phone3; // Phone 3 has NO glyphs
+    private bool HasMatrix() => _selectedDevice == GlyphDeviceType.Phone3;  // Only Phone 3 has matrix (for now)
+    private bool IsMatrixAvailable() => HasMatrix();
+
+    // 🔮 Future-proofing for dual-feature phones
+    private bool HasBothFeatures() => HasGlyphs() && HasMatrix(); // Future phones might have both
+
     private string GetPreviewTabText()
     {
-        return IsMatrixAvailable() ? "Combined Preview" : "Glyph Preview";
+        if (_selectedDevice == GlyphDeviceType.Phone3)
+            return "Matrix Preview"; // Phone 3 has no glyphs to combine
+
+        return HasMatrix() ? "Combined Preview" : "Glyph Preview"; // Future phones might have both
+    }
+
+    private string GetGlyphTabText()
+    {
+        return HasGlyphs() ? "Glyph Designer" : "Glyph Designer (N/A)";
+    }
+
+    private string GetGlyphDesignTitle()
+    {
+        return HasGlyphs() ? $"{GetDeviceDisplayName(_selectedDevice)} Glyph Design" : "LED Glyph Design";
     }
 
     // 🔄 Tab event handlers
@@ -654,13 +710,13 @@
     {
         _activeTabIndex = newIndex;
         Debug.WriteLine($"Tab changed to index: {newIndex}");
-        
+
         // Refresh data when switching to tabs that need it
         if (newIndex == 1 && IsMatrixAvailable()) // Matrix tab
         {
             SyncMatrixPixelsFromService();
         }
-        
+
         StateHasChanged();
         await Task.CompletedTask;
     }
@@ -669,28 +725,52 @@
     {
         _selectedDevice = newDevice;
         Debug.WriteLine($"Device changed to: {newDevice}");
-        
+
+        // Clear states when switching devices
+        _activeChannels.Clear();
+        foreach (var channel in _channelIntensities.Keys.ToList())
+        {
+            _channelIntensities[channel] = 0;
+        }
+
+        // If switching to Phone (3) and on Glyph Designer tab, switch to Matrix tab
+        if (_selectedDevice == GlyphDeviceType.Phone3 && _activeTabIndex == 0)
+        {
+            _activeTabIndex = 1; // Switch to Matrix Playground
+        }
+        // If switching away from Phone (3) and on Matrix tab, switch to Glyph Designer
+        else if (_selectedDevice != GlyphDeviceType.Phone3 && _activeTabIndex == 1)
+        {
+            _activeTabIndex = 0; // Switch to Glyph Designer
+        }
+
         // Reinitialize for new device
         InitializeChannelMappings();
-        
-        // Register with services
+
+        // Register with appropriate services based on device capabilities
         try
         {
-            await InterfaceService.RegisterDeviceAsync(_selectedDevice);
-            if (IsMatrixAvailable())
+            if (HasGlyphs())
+            {
+                await InterfaceService.RegisterDeviceAsync(_selectedDevice);
+                Debug.WriteLine($"Registered {_selectedDevice} with Interface service");
+            }
+
+            if (HasMatrix())
             {
                 await MatrixService.RegisterDeviceAsync(_selectedDevice);
+                Debug.WriteLine($"Registered {_selectedDevice} with Matrix service");
             }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Failed to register new device: {ex.Message}");
         }
-        
+
         StateHasChanged();
     }
 
-    // 🎬 Combined sequence playback
+    // 🎬 Combined sequence playback - Device-aware
     private async Task PlayCombinedSequence()
     {
         try
@@ -701,25 +781,45 @@
 
             for (int i = 0; i < _repeatCount && !_sequenceCancellation.Token.IsCancellationRequested; i++)
             {
-                Debug.WriteLine($"Playing sequence iteration {i + 1}/{_repeatCount}");
-                
-                // Example sequence: Pulse glyphs and animate matrix
-                await AnimateAllChannels();
-                
-                if (IsMatrixAvailable())
+                Debug.WriteLine($"Playing sequence iteration {i + 1}/{_repeatCount} for {_selectedDevice}");
+
+                if (_selectedDevice == GlyphDeviceType.Phone3)
                 {
+                    // Phone (3) - Matrix-only sequence
                     await DrawPattern(MatrixPattern.Circle);
                     await Task.Delay(_sequenceDuration / 3, _sequenceCancellation.Token);
-                    
+
                     await DrawPattern(MatrixPattern.Cross);
                     await Task.Delay(_sequenceDuration / 3, _sequenceCancellation.Token);
-                    
+
+                    await DrawPattern(MatrixPattern.Square);
+                    await Task.Delay(_sequenceDuration / 3, _sequenceCancellation.Token);
+
                     await ClearMatrixPixels();
                 }
-                
-                await Task.Delay(_sequenceDuration / 3, _sequenceCancellation.Token);
-                await TurnOffAllChannels();
-                
+                else if (HasBothFeatures())
+                {
+                    // Future phones with both features - synchronized sequence
+                    await AnimateAllChannels();
+
+                    await DrawPattern(MatrixPattern.Circle);
+                    await Task.Delay(_sequenceDuration / 3, _sequenceCancellation.Token);
+
+                    await DrawPattern(MatrixPattern.Cross);
+                    await Task.Delay(_sequenceDuration / 3, _sequenceCancellation.Token);
+
+                    await ClearMatrixPixels();
+                    await Task.Delay(_sequenceDuration / 3, _sequenceCancellation.Token);
+                    await TurnOffAllChannels();
+                }
+                else
+                {
+                    // Current phones with only glyphs
+                    await AnimateAllChannels();
+                    await Task.Delay(_sequenceDuration, _sequenceCancellation.Token);
+                    await TurnOffAllChannels();
+                }
+
                 if (i < _repeatCount - 1) // Don't delay after last iteration
                 {
                     await Task.Delay(200, _sequenceCancellation.Token); // Brief pause between iterations
@@ -747,11 +847,17 @@
     private async Task StopSequence()
     {
         _sequenceCancellation?.Cancel();
-        await TurnOffAllChannels();
-        if (IsMatrixAvailable())
+
+        if (HasGlyphs())
+        {
+            await TurnOffAllChannels();
+        }
+
+        if (HasMatrix())
         {
             await ClearMatrixPixels();
         }
+
         _isSequencePlaying = false;
         StateHasChanged();
     }
@@ -762,7 +868,7 @@
         try
         {
             var channels = GetVisibleChannels();
-            
+
             switch (pattern)
             {
                 case GlyphPattern.AllOn:
@@ -771,11 +877,11 @@
                         await SetChannelIntensity(channel, 255);
                     }
                     break;
-                    
+
                 case GlyphPattern.AllOff:
                     await TurnOffAllChannels();
                     break;
-                    
+
                 case GlyphPattern.Wave:
                     foreach (var channel in channels)
                     {
@@ -784,12 +890,12 @@
                         await SetChannelIntensity(channel, 0);
                     }
                     break;
-                    
+
                 case GlyphPattern.Pulse:
                     await AnimateAllChannels();
                     break;
             }
-            
+
             Snackbar.Add($"Applied {pattern} pattern", Severity.Success);
         }
         catch (Exception ex)
@@ -800,7 +906,7 @@
     }
 
     // All existing methods from original file continue below...
-    
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -839,82 +945,87 @@
     }
 
     // 🎨 KOWALSKI'S AUTHENTIC LED STRIP GEOMETRY METHODS
-    
+
     // Nothing Phone (3) LED Strip Positioning
-    private string GetPhone3ChannelAStyle() => 
+    private string GetPhone3ChannelAStyle() =>
         "position: absolute; top: 8%; left: 36%; width: 28%; height: 20%; z-index: 10;";
-    
-    private string GetPhone3ChannelBStyle() => 
+
+    private string GetPhone3ChannelBStyle() =>
         "position: absolute; top: 18%; right: 8%; width: 4%; height: 25%; z-index: 10;";
-    
-    private string GetPhone3ChannelCStyle() => 
+
+    private string GetPhone3ChannelCStyle() =>
         "position: absolute; bottom: 15%; left: 15%; width: 70%; height: 4%; z-index: 10;";
-    
-    // Nothing Phone (2) LED Strip Positioning
-    private string GetPhone2ChannelAStyle() => 
-        "position: absolute; top: 6%; left: 35%; width: 30%; height: 22%; z-index: 10;";
-    
-    private string GetPhone2ChannelBStyle() => 
-        "position: absolute; top: 15%; right: 10%; width: 6%; height: 30%; z-index: 10;";
-    
-    private string GetPhone2ChannelCStyle() => 
-        "position: absolute; top: 45%; left: 25%; width: 50%; height: 6%; transform: rotate(-15deg); z-index: 10;";
-    
-    private string GetPhone2ChannelDStyle() => 
-        "position: absolute; bottom: 25%; right: 12%; width: 8%; height: 20%; z-index: 10;";
-    
-    private string GetPhone2ChannelEStyle() => 
-        "position: absolute; bottom: 18%; right: 13%; width: 6%; height: 6%; z-index: 10;";
-    
-    // Nothing Phone (1) LED Strip Positioning
-    private string GetPhone1ChannelAStyle() => 
-        "position: absolute; top: 8%; left: 38%; width: 24%; height: 18%; z-index: 10;";
-    
-    private string GetPhone1ChannelBStyle() => 
-        "position: absolute; top: 25%; right: 15%; width: 5%; height: 35%; z-index: 10;";
-    
-    private string GetPhone1ChannelCStyle() => 
-        "position: absolute; bottom: 20%; left: 20%; width: 60%; height: 5%; z-index: 10;";
-    
-    private string GetPhone1ChannelDStyle() => 
-        "position: absolute; top: 30%; left: 15%; width: 5%; height: 25%; z-index: 10;";
-    
-    // Nothing Phone (2a) LED Strip Positioning
-    private string GetPhone2aChannelAStyle() => 
-        "position: absolute; top: 10%; left: 40%; width: 20%; height: 16%; z-index: 10;";
-    
-    private string GetPhone2aChannelBStyle() => 
-        "position: absolute; top: 20%; right: 12%; width: 4%; height: 20%; z-index: 10;";
-    
-    private string GetPhone2aChannelCStyle() => 
-        "position: absolute; bottom: 18%; left: 25%; width: 50%; height: 4%; z-index: 10;";
-    
-    // 💫 LED Strip Visual Styling Engine
+
+    // Nothing Phone (2) LED Strip Positioning - CORRECTED AUTHENTIC LAYOUT
+    private string GetPhone2ChannelAStyle() =>
+        "position: absolute; top: 8%; left: 8%; width: 20%; height: 18%; z-index: 20;";  // Camera ring (top left)
+
+    private string GetPhone2ChannelBStyle() =>
+        "position: absolute; top: 8%; right: 8%; width: 6%; height: 20%; transform: rotate(20deg); z-index: 20;";  // Diagonal line (top right)
+
+    private string GetPhone2ChannelCStyle() =>
+        "position: absolute; top: 35%; left: 20%; width: 60%; height: 60%; z-index: 20;";  // Large center circle
+
+    private string GetPhone2ChannelDStyle() =>
+        "position: absolute; bottom: 8%; left: 47%; width: 6%; height: 15%; z-index: 20;";  // Vertical line (bottom center)
+
+    private string GetPhone2ChannelEStyle() =>
+        "position: absolute; bottom: 5%; left: 48%; width: 4%; height: 4%; z-index: 20;";  // Small dot (bottom)
+
+    // Nothing Phone (1) LED Strip Positioning - CORRECTED AUTHENTIC LAYOUT
+    private string GetPhone1ChannelAStyle() =>
+        "position: absolute; top: 15%; left: 8%; width: 18%; height: 16%; z-index: 20;";  // Camera ring on LEFT
+
+    private string GetPhone1ChannelBStyle() =>
+        "position: absolute; top: 25%; right: 8%; width: 6%; height: 35%; transform: rotate(15deg); z-index: 20;";  // Diagonal strip on RIGHT
+
+    private string GetPhone1ChannelCStyle() =>
+        "position: absolute; bottom: 15%; left: 25%; width: 50%; height: 4%; z-index: 20;";  // Vertical bar at BOTTOM
+
+    private string GetPhone1ChannelDStyle() =>
+        "position: absolute; top: 45%; left: 42%; width: 16%; height: 16%; z-index: 20;";  // Square in MIDDLE
+
+    // Nothing Phone (2a) LED Strip Positioning - CORRECTED AUTHENTIC LAYOUT
+    private string GetPhone2aChannelAStyle() =>
+        "position: absolute; top: 10%; left: 25%; width: 50%; height: 20%; z-index: 20;";  // Camera outline (top area)
+
+    private string GetPhone2aChannelBStyle() =>
+        "position: absolute; top: 25%; right: 8%; width: 4%; height: 40%; z-index: 20;";  // Vertical lines (right side)
+
+    private string GetPhone2aChannelCStyle() =>
+        "position: absolute; bottom: 20%; right: 12%; width: 6%; height: 6%; z-index: 20;";  // Small red square (bottom right)
+
+    // 💫 LED Strip Visual Styling Engine - MAXIMUM VISIBILITY
     private string GetLEDStripStyle(string channel, string stripType)
     {
         var intensity = GetChannelIntensity(channel);
         var isActive = intensity > 0;
-        
-        var baseOpacity = isActive ? Math.Max(0.4, intensity / 255.0) : 0.1;
-        var glowOpacity = isActive ? Math.Max(0.2, intensity / 400.0) : 0;
-        
-        var baseColor = isActive ? "0, 255, 136" : "64, 64, 64"; // Nothing Phone signature green or dim gray
-        
+
+        var baseOpacity = isActive ? 1.0 : 0.8; // Much brighter when off
+        var glowOpacity = isActive ? 0.8 : 0;
+
+        var baseColor = isActive ? "0, 255, 136" : "200, 200, 200"; // Bright white when off, Nothing green when on
+        var borderColor = isActive ? "0, 255, 136" : "150, 150, 150";
+
         return stripType switch
         {
-            "ring" => $@"width: 100%; height: 100%; border: 3px solid rgba({baseColor}, {baseOpacity}); border-radius: 50%; background: radial-gradient(circle, rgba({baseColor}, {glowOpacity * 0.3}) 0%, transparent 70%); box-shadow: {(isActive ? $"0 0 15px rgba({baseColor}, {glowOpacity}), inset 0 0 15px rgba({baseColor}, {glowOpacity * 0.5})" : "none")}; cursor: pointer; transition: all 0.3s ease;",
-            
-            "vertical" => $@"width: 100%; height: 100%; background: linear-gradient(to bottom, rgba({baseColor}, {baseOpacity}) 0%, rgba({baseColor}, {baseOpacity * 0.8}) 50%, rgba({baseColor}, {baseOpacity}) 100%); border-radius: 12px; box-shadow: {(isActive ? $"0 0 10px rgba({baseColor}, {glowOpacity})" : "none")}; cursor: pointer; transition: all 0.3s ease;",
-            
-            "horizontal" => $@"width: 100%; height: 100%; background: linear-gradient(to right, rgba({baseColor}, {baseOpacity * 0.6}) 0%, rgba({baseColor}, {baseOpacity}) 50%, rgba({baseColor}, {baseOpacity * 0.6}) 100%); border-radius: 8px; box-shadow: {(isActive ? $"0 0 8px rgba({baseColor}, {glowOpacity})" : "none")}; cursor: pointer; transition: all 0.3s ease;",
-            
-            "diagonal" => $@"width: 100%; height: 100%; background: linear-gradient(45deg, rgba({baseColor}, {baseOpacity * 0.7}) 0%, rgba({baseColor}, {baseOpacity}) 50%, rgba({baseColor}, {baseOpacity * 0.7}) 100%); border-radius: 6px; box-shadow: {(isActive ? $"0 0 8px rgba({baseColor}, {glowOpacity})" : "none")}; cursor: pointer; transition: all 0.3s ease;",
-            
-            "exclamation" => $@"width: 100%; height: 100%; background: linear-gradient(to bottom, rgba({baseColor}, {baseOpacity}) 0%, rgba({baseColor}, {baseOpacity * 0.9}) 75%, transparent 76%, transparent 85%, rgba({baseColor}, {baseOpacity}) 86%, rgba({baseColor}, {baseOpacity}) 100%); border-radius: 4px; box-shadow: {(isActive ? $"0 0 6px rgba({baseColor}, {glowOpacity})" : "none")}; cursor: pointer; transition: all 0.3s ease;",
-            
-            "dot" => $@"width: 100%; height: 100%; background: radial-gradient(circle, rgba({baseColor}, {baseOpacity}) 0%, rgba({baseColor}, {baseOpacity * 0.8}) 70%, transparent 71%); border-radius: 50%; box-shadow: {(isActive ? $"0 0 8px rgba({baseColor}, {glowOpacity})" : "none")}; cursor: pointer; transition: all 0.3s ease;",
-            
-            _ => $@"width: 100%; height: 100%; background: rgba({baseColor}, {baseOpacity}); border-radius: 4px; cursor: pointer; transition: all 0.3s ease;"
+            "ring" => $@"width: 100%; height: 100%; border: 3px solid rgba({borderColor}, {baseOpacity}); border-radius: 20px; background: rgba({baseColor}, {(isActive ? 0.3 : 0.1)}); box-shadow: {(isActive ? $"0 0 25px rgba({baseColor}, {glowOpacity}), inset 0 0 15px rgba({baseColor}, {glowOpacity * 0.6})" : $"0 0 8px rgba({borderColor}, 0.4)")}; cursor: pointer; transition: all 0.3s ease;",
+
+            "vertical" => $@"width: 100%; height: 100%; background: rgba({baseColor}, {(isActive ? 0.4 : 0.15)}); border-radius: 8px; border: 2px solid rgba({borderColor}, {baseOpacity}); box-shadow: {(isActive ? $"0 0 20px rgba({baseColor}, {glowOpacity}), inset 0 0 10px rgba({baseColor}, {glowOpacity * 0.5})" : $"0 0 5px rgba({borderColor}, 0.4)")}; cursor: pointer; transition: all 0.3s ease;",
+
+            "horizontal" => $@"width: 100%; height: 100%; background: rgba({baseColor}, {(isActive ? 0.4 : 0.15)}); border-radius: 6px; border: 2px solid rgba({borderColor}, {baseOpacity}); box-shadow: {(isActive ? $"0 0 18px rgba({baseColor}, {glowOpacity}), inset 0 0 8px rgba({baseColor}, {glowOpacity * 0.4})" : $"0 0 4px rgba({borderColor}, 0.4)")}; cursor: pointer; transition: all 0.3s ease;",
+
+            "diagonal" => $@"width: 100%; height: 100%; background: rgba({baseColor}, {(isActive ? 0.4 : 0.15)}); border-radius: 8px; border: 2px solid rgba({borderColor}, {baseOpacity}); box-shadow: {(isActive ? $"0 0 15px rgba({baseColor}, {glowOpacity})" : $"0 0 4px rgba({borderColor}, 0.4)")}; cursor: pointer; transition: all 0.3s ease;",
+
+            "exclamation" => $@"width: 100%; height: 100%; background: linear-gradient(to bottom, rgba({baseColor}, {baseOpacity * 0.4}) 0%, rgba({baseColor}, {baseOpacity * 0.4}) 75%, transparent 76%, transparent 85%, rgba({baseColor}, {baseOpacity * 0.4}) 86%, rgba({baseColor}, {baseOpacity * 0.4}) 100%); border-radius: 6px; border: 2px solid rgba({borderColor}, {baseOpacity}); box-shadow: {(isActive ? $"0 0 12px rgba({baseColor}, {glowOpacity})" : $"0 0 3px rgba({borderColor}, 0.4)")}; cursor: pointer; transition: all 0.3s ease;",
+
+            "dot" => $@"width: 100%; height: 100%; background: radial-gradient(circle, rgba({baseColor}, {baseOpacity * 0.4}) 0%, rgba({baseColor}, {baseOpacity * 0.3}) 70%, transparent 71%); border-radius: 50%; border: 2px solid rgba({borderColor}, {baseOpacity}); box-shadow: {(isActive ? $"0 0 15px rgba({baseColor}, {glowOpacity})" : $"0 0 3px rgba({borderColor}, 0.4)")}; cursor: pointer; transition: all 0.3s ease;",
+
+            "circle" => $@"width: 100%; height: 100%; border: 4px solid rgba({borderColor}, {baseOpacity}); border-radius: 50%; background: rgba({baseColor}, {(isActive ? 0.2 : 0.05)}); box-shadow: {(isActive ? $"0 0 30px rgba({baseColor}, {glowOpacity}), inset 0 0 20px rgba({baseColor}, {glowOpacity * 0.4})" : $"0 0 8px rgba({borderColor}, 0.3)")}; cursor: pointer; transition: all 0.3s ease;",
+
+            "square" => $@"width: 100%; height: 100%; background: rgba({baseColor}, {(isActive ? 0.4 : 0.15)}); border-radius: 4px; border: 3px solid rgba({borderColor}, {baseOpacity}); box-shadow: {(isActive ? $"0 0 20px rgba({baseColor}, {glowOpacity}), inset 0 0 10px rgba({baseColor}, {glowOpacity * 0.5})" : $"0 0 5px rgba({borderColor}, 0.4)")}; cursor: pointer; transition: all 0.3s ease;",
+
+            _ => $@"width: 100%; height: 100%; background: rgba({baseColor}, {(isActive ? 0.4 : 0.15)}); border-radius: 6px; border: 2px solid rgba({borderColor}, {baseOpacity}); cursor: pointer; transition: all 0.3s ease;"
         };
     }
 
@@ -1507,7 +1618,7 @@
     {
         _sequenceCancellation?.Cancel();
         _sequenceCancellation?.Dispose();
-        
+
         InterfaceService.ConnectionChanged -= OnInterfaceConnectionChanged;
         MatrixService.ConnectionChanged -= OnMatrixConnectionChanged;
         MatrixService.FrameUpdated -= OnMatrixFrameUpdated;
