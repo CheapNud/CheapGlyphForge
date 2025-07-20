@@ -1,0 +1,733 @@
+﻿@page "/simulator"
+@using CheapGlyphForge.Core.Interfaces
+@using CheapGlyphForge.Core.Models
+@using CheapGlyphForge.Core.Helpers
+@using MudBlazor
+@using System.Diagnostics
+@inject IGlyphInterfaceService InterfaceService
+@inject IGlyphMatrixService MatrixService
+@inject ISnackbar Snackbar
+
+<PageTitle>Unified Glyph Simulator</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pa-6">
+    
+    <!-- Header Section -->
+    <MudPaper Class="pa-4 mb-4" Elevation="2">
+        <MudGrid AlignItems="Center">
+            <MudItem xs="12" md="8">
+                <MudText Typo="Typo.h4" Class="mb-2">🔆 Unified Glyph Simulator</MudText>
+                <MudText Typo="Typo.body1" Color="Color.Secondary">
+                    Simulate Nothing Phone Glyph Interface (5 channels) and Matrix (25×25 LED grid) without hardware conflicts
+                </MudText>
+            </MudItem>
+            <MudItem xs="12" md="4" Class="text-right">
+                <MudChip T="string" Icon="@GetConnectionIcon()" Color="@GetConnectionColor()" Label="true">
+                    @GetConnectionStatus()
+                </MudChip>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    <!-- Mode Selection -->
+    <MudPaper Class="pa-4 mb-4" Elevation="1">
+        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Class="mb-3">
+            <MudButton StartIcon="Icons.Material.Filled.Lightbulb" 
+                      Variant="@(_simulationMode == SimulationMode.Interface ? Variant.Filled : Variant.Outlined)"
+                      OnClick="() => SetSimulationMode(SimulationMode.Interface)">
+                Interface Mode
+            </MudButton>
+            <MudButton StartIcon="Icons.Material.Filled.GridOn" 
+                      Variant="@(_simulationMode == SimulationMode.Matrix ? Variant.Filled : Variant.Outlined)"
+                      OnClick="() => SetSimulationMode(SimulationMode.Matrix)">
+                Matrix Mode
+            </MudButton>
+            <MudButton StartIcon="Icons.Material.Filled.ViewModule" 
+                      Variant="@(_simulationMode == SimulationMode.Unified ? Variant.Filled : Variant.Outlined)"
+                      OnClick="() => SetSimulationMode(SimulationMode.Unified)">
+                Unified View
+            </MudButton>
+        </MudButtonGroup>
+
+        <MudSelect T="GlyphDeviceType" Label="Device Type" @bind-Value="_selectedDevice" Variant="Variant.Outlined" Class="mb-2">
+            @foreach (var device in Enum.GetValues<GlyphDeviceType>())
+            {
+                <MudSelectItem T="GlyphDeviceType" Value="device">@GetDeviceDisplayName(device)</MudSelectItem>
+            }
+        </MudSelect>
+    </MudPaper>
+
+    <MudGrid>
+        <!-- Phone Visualization -->
+        <MudItem xs="12" lg="8">
+            <MudPaper Class="pa-4" Elevation="2">
+                <MudText Typo="Typo.h6" Class="mb-4">Nothing Phone Simulation</MudText>
+                
+                <!-- Phone Outline Container -->
+                <div style="position: relative; width: 100%; max-width: 400px; margin: 0 auto; aspect-ratio: 0.47;">
+                    
+                    <!-- Phone Background -->
+                    <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); border-radius: 24px; border: 2px solid #404040;"></div>
+                    
+                    <!-- Interface Channels (if enabled) -->
+                    @if (_simulationMode == SimulationMode.Interface || _simulationMode == SimulationMode.Unified)
+                    {
+                        @foreach (var channel in GetVisibleChannels())
+                        {
+                            string style = $@"width: 100%; height: 100%; background-color: {GetChannelColor(channel)} border-radius: 8px; cursor: pointer; transition: all 0.3s ease;";
+                            <div style="@GetChannelStyle(channel)" @onclick="() => ToggleChannel(channel)">
+                                <MudPaper Style=@style Elevation="@(GetChannelIntensity(channel) > 0 ? 4 : 1)"></MudPaper>
+                            </div>
+                        }
+                    }
+                    
+                    <!-- Matrix Overlay (if enabled) -->
+                    @if (_simulationMode == SimulationMode.Matrix || _simulationMode == SimulationMode.Unified)
+                    {
+                        <div style="@MatrixOverlayStyle">
+                            @for (int y = 0; y < IGlyphMatrixService.MatrixHeight; y++)
+                            {
+                                <div style="display: flex;">
+                                    @for (int x = 0; x < IGlyphMatrixService.MatrixWidth; x++)
+                                    {
+                                        var pixelIndex = y * IGlyphMatrixService.MatrixWidth + x;
+                                        <div style="@GetPixelStyle(x, y)" @onclick="() => TogglePixel(x, y)">
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </MudPaper>
+        </MudItem>
+
+        <!-- Control Panel -->
+        <MudItem xs="12" lg="4">
+            <MudPaper Class="pa-4" Elevation="2">
+                <MudText Typo="Typo.h6" Class="mb-4">Controls</MudText>
+                
+                <!-- Interface Controls -->
+                @if (_simulationMode == SimulationMode.Interface || _simulationMode == SimulationMode.Unified)
+                {
+                    <MudExpansionPanels Class="mb-4">
+                        <MudExpansionPanel IsExpanded="true">
+                            <TitleContent>
+                                <div style="display: flex; align-items: center;">
+                                    <MudIcon Icon="Icons.Material.Filled.Lightbulb" Class="mr-3"/>
+                                    <MudText>Interface Channels</MudText>
+                                </div>
+                            </TitleContent>
+                            <ChildContent>
+                                @foreach (var channel in GetVisibleChannels())
+                                {
+                                    <MudGrid AlignItems="Center" Class="mb-2">
+                                        <MudItem xs="3">
+                                            <MudButton Variant="Variant.Outlined" 
+                                                      Color="Color.Primary" 
+                                                      Size="Size.Small"
+                                                      OnClick="() => ToggleChannel(channel)">
+                                                @channel
+                                            </MudButton>
+                                        </MudItem>
+                                        <MudItem xs="6">
+                                            <MudSlider T="int" 
+                                                      Min="0" 
+                                                      Max="255" 
+                                                      Step="1"
+                                                      Value="@GetChannelIntensity(channel)"
+                                                      ValueChanged="(int value) => SetChannelIntensity(channel, value)"
+                                                      Class="mx-2"/>
+                                        </MudItem>
+                                        <MudItem xs="3">
+                                            <MudText Typo="Typo.caption">@GetChannelIntensity(channel)</MudText>
+                                        </MudItem>
+                                    </MudGrid>
+                                }
+                                
+                                <MudDivider Class="my-3"/>
+                                
+                                <MudButtonGroup Variant="Variant.Outlined" Size="Size.Small" Class="mb-2">
+                                    <MudButton OnClick="AnimateAllChannels" StartIcon="Icons.Material.Filled.AutoAwesome">
+                                        Animate All
+                                    </MudButton>
+                                    <MudButton OnClick="TurnOffAllChannels" StartIcon="Icons.Material.Filled.PowerOff">
+                                        Turn Off
+                                    </MudButton>
+                                </MudButtonGroup>
+                            </ChildContent>
+                        </MudExpansionPanel>
+                    </MudExpansionPanels>
+                }
+
+                <!-- Matrix Controls -->
+                @if (_simulationMode == SimulationMode.Matrix || _simulationMode == SimulationMode.Unified)
+                {
+                    <MudExpansionPanels Class="mb-4">
+                        <MudExpansionPanel IsExpanded="true">
+                            <TitleContent>
+                                <div style="display: flex; align-items: center;">
+                                    <MudIcon Icon="Icons.Material.Filled.GridOn" Class="mr-3"/>
+                                    <MudText>Matrix Controls</MudText>
+                                </div>
+                            </TitleContent>
+                            <ChildContent>
+                                <MudGrid Class="mb-3">
+                                    <MudItem xs="6">
+                                        <MudNumericField T="int" 
+                                                        Label="X Position" 
+                                                        @bind-Value="_matrixX" 
+                                                        Min="0" 
+                                                        Max="24"
+                                                        Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                    <MudItem xs="6">
+                                        <MudNumericField T="int" 
+                                                        Label="Y Position" 
+                                                        @bind-Value="_matrixY" 
+                                                        Min="0" 
+                                                        Max="24"
+                                                        Variant="Variant.Outlined"/>
+                                    </MudItem>
+                                </MudGrid>
+                                
+                                <MudSlider T="int" 
+                                          Label="Intensity" 
+                                          Min="0" 
+                                          Max="255" 
+                                          Step="1"
+                                          @bind-Value="_matrixIntensity"
+                                          Class="mb-3"/>
+                                
+                                <MudButtonGroup Variant="Variant.Outlined" Size="Size.Small" Class="mb-3">
+                                    <MudButton OnClick="SetPixelAtPosition" StartIcon="Icons.Material.Filled.Add">
+                                        Set Pixel
+                                    </MudButton>
+                                    <MudButton OnClick="ClearMatrixPixels" StartIcon="Icons.Material.Filled.Clear">
+                                        Clear All
+                                    </MudButton>
+                                </MudButtonGroup>
+                                
+                                <MudText Typo="Typo.subtitle2" Class="mb-2">Quick Patterns:</MudText>
+                                <MudButtonGroup Variant="Variant.Text" Size="Size.Small">
+                                    <MudButton OnClick="() => DrawPattern(MatrixPattern.Cross)" StartIcon="Icons.Material.Filled.Add">
+                                        Cross
+                                    </MudButton>
+                                    <MudButton OnClick="() => DrawPattern(MatrixPattern.Circle)" StartIcon="Icons.Material.Filled.RadioButtonUnchecked">
+                                        Circle
+                                    </MudButton>
+                                    <MudButton OnClick="() => DrawPattern(MatrixPattern.Square)" StartIcon="Icons.Material.Filled.CropSquare">
+                                        Square
+                                    </MudButton>
+                                </MudButtonGroup>
+                            </ChildContent>
+                        </MudExpansionPanel>
+                    </MudExpansionPanels>
+                }
+
+                <!-- Status Information -->
+                <MudCard Class="mt-4">
+                    <MudCardContent>
+                        <MudText Typo="Typo.subtitle2" Class="mb-2">Status</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">
+                            Active Channels: @_activeChannels.Count<br/>
+                            Active Pixels: @_matrixPixels.Count(p => p.Intensity > 0)<br/>
+                            Last Update: @_lastUpdate.ToString("HH:mm:ss")
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    // Constants
+    private const string PhoneOutlineColor = "#2d2d2d";
+    private const string ActiveGlyphColor = "#00ff88";
+    private const string InactiveGlyphColor = "#404040";
+
+    // State
+    private SimulationMode _simulationMode = SimulationMode.Unified;
+    private GlyphDeviceType _selectedDevice = GlyphDeviceType.Phone3;
+    private readonly Dictionary<string, int> _channelIntensities = [];
+    private readonly HashSet<string> _activeChannels = [];
+    private readonly GlyphPixel[] _matrixPixels = new GlyphPixel[IGlyphMatrixService.TotalPixels];
+    private int _matrixX = 12;
+    private int _matrixY = 12;
+    private int _matrixIntensity = 255;
+    private DateTime _lastUpdate = DateTime.Now;
+
+    // Style properties
+    private string MatrixOverlayStyle => 
+        "position: absolute; top: 20%; left: 20%; width: 60%; height: 60%; display: flex; flex-direction: column; gap: 1px; opacity: 0.9;";
+
+    protected override async Task OnInitializedAsync()
+    {
+        InitializeChannelMappings();
+        InitializeMatrixPixels();
+        await SubscribeToServiceEvents();
+    }
+
+    private void InitializeChannelMappings()
+    {
+        var channels = GetVisibleChannels();
+        foreach (var channel in channels)
+        {
+            _channelIntensities[channel] = 0;
+        }
+    }
+
+    private void InitializeMatrixPixels()
+    {
+        for (int i = 0; i < IGlyphMatrixService.TotalPixels; i++)
+        {
+            var x = i % IGlyphMatrixService.MatrixWidth;
+            var y = i / IGlyphMatrixService.MatrixWidth;
+            _matrixPixels[i] = new GlyphPixel(x, y, 0);
+        }
+    }
+
+    private async Task SubscribeToServiceEvents()
+    {
+        // [Inference] Subscribing to service events for real-time updates
+        InterfaceService.ConnectionChanged += OnInterfaceConnectionChanged;
+        MatrixService.ConnectionChanged += OnMatrixConnectionChanged;
+        MatrixService.FrameUpdated += OnMatrixFrameUpdated;
+    }
+
+    private void OnInterfaceConnectionChanged(object? sender, bool isConnected)
+    {
+        Debug.WriteLine($"Interface connection changed: {isConnected}");
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnMatrixConnectionChanged(object? sender, bool isConnected)
+    {
+        Debug.WriteLine($"Matrix connection changed: {isConnected}");
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnMatrixFrameUpdated(object? sender, GlyphMatrixUpdateEventArgs e)
+    {
+        Debug.WriteLine($"Matrix frame updated: {e.Description}");
+        _lastUpdate = DateTime.Now;
+        InvokeAsync(StateHasChanged);
+    }
+
+    // Mode Management
+    private async Task SetSimulationMode(SimulationMode mode)
+    {
+        _simulationMode = mode;
+        Debug.WriteLine($"Simulation mode changed to: {mode}");
+
+        if (mode == SimulationMode.Interface)
+        {
+            await ClearMatrixPixels();
+        }
+        else if (mode == SimulationMode.Matrix)
+        {
+            await TurnOffAllChannels();
+        }
+
+        StateHasChanged();
+    }
+
+    // Device Management
+    private string GetDeviceDisplayName(GlyphDeviceType device) => device switch
+    {
+        GlyphDeviceType.Phone1 => "Nothing Phone (1)",
+        GlyphDeviceType.Phone2 => "Nothing Phone (2)",
+        GlyphDeviceType.Phone2a => "Nothing Phone (2a)",
+        GlyphDeviceType.Phone2aPlus => "Nothing Phone (2a) Plus",
+        GlyphDeviceType.Phone3 => "Nothing Phone (3)",
+        _ => device.ToString()
+    };
+
+    private List<string> GetVisibleChannels() => _selectedDevice switch
+    {
+        GlyphDeviceType.Phone1 => ["A", "B", "C", "D"],
+        GlyphDeviceType.Phone2 => ["A", "B", "C", "D", "E"],
+        GlyphDeviceType.Phone2a or GlyphDeviceType.Phone2aPlus => ["A", "B", "C"],
+        GlyphDeviceType.Phone3 => ["A", "B", "C"],
+        _ => ["A", "B", "C"]
+    };
+
+    // Channel Management
+    private async Task ToggleChannel(string channel)
+    {
+        if (_activeChannels.Contains(channel))
+        {
+            await SetChannelIntensity(channel, 0);
+        }
+        else
+        {
+            await SetChannelIntensity(channel, 255);
+        }
+    }
+
+    private async Task SetChannelIntensity(string channel, int intensity)
+    {
+        _channelIntensities[channel] = intensity;
+
+        if (intensity > 0)
+        {
+            _activeChannels.Add(channel);
+        }
+        else
+        {
+            _activeChannels.Remove(channel);
+        }
+
+        // [Inference] Simulate service call
+        try
+        {
+            var channels = GetChannelNumbers(channel);
+            if (intensity > 0)
+            {
+                await InterfaceService.ToggleChannelsAsync(channels);
+            }
+            else
+            {
+                await InterfaceService.TurnOffAsync();
+            }
+
+            Debug.WriteLine($"Channel {channel} intensity set to {intensity}");
+            _lastUpdate = DateTime.Now;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to set channel {channel}: {ex.Message}");
+            Snackbar.Add($"Failed to control channel {channel}", Severity.Warning);
+        }
+
+        StateHasChanged();
+    }
+
+    private int GetChannelIntensity(string channel) => _channelIntensities.GetValueOrDefault(channel, 0);
+
+    private string GetChannelColor(string channel)
+    {
+        var intensity = GetChannelIntensity(channel);
+        if (intensity == 0) return InactiveGlyphColor;
+
+        var alpha = Math.Max(0.3, intensity / 255.0);
+        return $"rgba(0, 255, 136, {alpha:F2})";
+    }
+
+    private string GetChannelStyle(string channel) => channel switch
+    {
+        "A" => "position: absolute; top: 15%; left: 45%; width: 10%; height: 8%;",
+        "B" => "position: absolute; top: 25%; right: 15%; width: 12%; height: 6%;",
+        "C" => "position: absolute; bottom: 30%; left: 20%; width: 60%; height: 8%;",
+        "D" => "position: absolute; bottom: 40%; right: 15%; width: 12%; height: 8%;",
+        "E" => "position: absolute; bottom: 15%; left: 45%; width: 10%; height: 6%;",
+        _ => "position: absolute; top: 50%; left: 50%; width: 5%; height: 5%;"
+    };
+
+    private int[] GetChannelNumbers(string channel) => _selectedDevice switch
+    {
+        GlyphDeviceType.Phone1 => channel switch
+        {
+            "A" => GlyphChannels.Phone1.A,
+            "B" => GlyphChannels.Phone1.B,
+            "C" => GlyphChannels.Phone1.C,
+            "D" => GlyphChannels.Phone1.D,
+            _ => []
+        },
+        GlyphDeviceType.Phone2 => channel switch
+        {
+            "A" => GlyphChannels.Phone2.A,
+            "B" => GlyphChannels.Phone2.B,
+            "C" => GlyphChannels.Phone2.C,
+            "D" => GlyphChannels.Phone2.D,
+            "E" => GlyphChannels.Phone2.E,
+            _ => []
+        },
+        GlyphDeviceType.Phone2a => channel switch
+        {
+            "A" => GlyphChannels.Phone2a.A,
+            "B" => GlyphChannels.Phone2a.B,
+            "C" => GlyphChannels.Phone2a.C,
+            _ => []
+        },
+        GlyphDeviceType.Phone2aPlus => channel switch
+        {
+            "A" => GlyphChannels.Phone2aPlus.A,
+            "B" => GlyphChannels.Phone2aPlus.B,
+            "C" => GlyphChannels.Phone2aPlus.C,
+            _ => []
+        },
+        GlyphDeviceType.Phone3 => channel switch
+        {
+            "A" => GlyphChannels.Phone3.A,
+            "B" => GlyphChannels.Phone3.B,
+            "C" => GlyphChannels.Phone3.C,
+            _ => []
+        },
+        _ => []
+    };
+
+    private async Task AnimateAllChannels()
+    {
+        try
+        {
+            var channels = GetVisibleChannels();
+            foreach (var channel in channels)
+            {
+                var channelNumbers = GetChannelNumbers(channel);
+                await InterfaceService.AnimateChannelsAsync(channelNumbers, 1000, 3);
+                _activeChannels.Add(channel);
+                _channelIntensities[channel] = 255;
+            }
+
+            Snackbar.Add("Animation started for all channels", Severity.Success);
+            _lastUpdate = DateTime.Now;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Animation failed: {ex.Message}");
+            Snackbar.Add("Failed to animate channels", Severity.Error);
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task TurnOffAllChannels()
+    {
+        try
+        {
+            await InterfaceService.TurnOffAsync();
+            _activeChannels.Clear();
+
+            foreach (var channel in _channelIntensities.Keys.ToList())
+            {
+                _channelIntensities[channel] = 0;
+            }
+
+            Debug.WriteLine("All channels turned off");
+            _lastUpdate = DateTime.Now;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to turn off channels: {ex.Message}");
+            Snackbar.Add("Failed to turn off channels", Severity.Warning);
+        }
+
+        StateHasChanged();
+    }
+
+    // Matrix Management
+    private async Task TogglePixel(int x, int y)
+    {
+        var index = y * IGlyphMatrixService.MatrixWidth + x;
+        var currentIntensity = _matrixPixels[index].Intensity;
+        var newIntensity = currentIntensity > 0 ? 0 : 255;
+
+        await SetMatrixPixel(x, y, newIntensity);
+    }
+
+    private async Task SetMatrixPixel(int x, int y, int intensity)
+    {
+        var index = y * IGlyphMatrixService.MatrixWidth + x;
+        _matrixPixels[index] = new GlyphPixel(x, y, intensity);
+
+        try
+        {
+            await MatrixService.SetPixelAsync(x, y, intensity);
+            Debug.WriteLine($"Matrix pixel ({x}, {y}) set to intensity {intensity}");
+            _lastUpdate = DateTime.Now;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to set matrix pixel: {ex.Message}");
+            Snackbar.Add($"Failed to set pixel ({x}, {y})", Severity.Warning);
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task SetPixelAtPosition()
+    {
+        await SetMatrixPixel(_matrixX, _matrixY, _matrixIntensity);
+    }
+
+    private async Task ClearMatrixPixels()
+    {
+        try
+        {
+            await MatrixService.TurnOffAsync();
+
+            for (int i = 0; i < IGlyphMatrixService.TotalPixels; i++)
+            {
+                var x = i % IGlyphMatrixService.MatrixWidth;
+                var y = i / IGlyphMatrixService.MatrixWidth;
+                _matrixPixels[i] = new GlyphPixel(x, y, 0);
+            }
+
+            Debug.WriteLine("Matrix cleared");
+            _lastUpdate = DateTime.Now;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to clear matrix: {ex.Message}");
+            Snackbar.Add("Failed to clear matrix", Severity.Warning);
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task DrawPattern(MatrixPattern pattern)
+    {
+        var pixels = pattern switch
+        {
+            MatrixPattern.Cross => GenerateCrossPattern(12, 12, 8),
+            MatrixPattern.Circle => GenerateCirclePattern(12, 12, 6),
+            MatrixPattern.Square => GenerateSquarePattern(8, 8, 8),
+            _ => []
+        };
+
+        try
+        {
+            await MatrixService.SetPixelsAsync(pixels);
+
+            foreach (var pixel in pixels)
+            {
+                var index = pixel.Y * IGlyphMatrixService.MatrixWidth + pixel.X;
+                _matrixPixels[index] = pixel;
+            }
+
+            Debug.WriteLine($"Drew {pattern} pattern with {pixels.Count()} pixels");
+            _lastUpdate = DateTime.Now;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to draw pattern: {ex.Message}");
+            Snackbar.Add($"Failed to draw {pattern} pattern", Severity.Warning);
+        }
+
+        StateHasChanged();
+    }
+
+    private string GetPixelStyle(int x, int y)
+    {
+        var index = y * IGlyphMatrixService.MatrixWidth + x;
+        var intensity = _matrixPixels[index].Intensity;
+        var alpha = intensity / 255.0;
+        var color = intensity > 0 ? $"rgba(0, 255, 136, {alpha:F2})" : "rgba(64, 64, 64, 0.3)";
+
+        return $"width: calc(100% / 25); height: calc(100% / 25); background-color: {color}; cursor: pointer; transition: all 0.2s ease; border-radius: 1px;";
+    }
+
+    // Pattern Generation
+    private IEnumerable<GlyphPixel> GenerateCrossPattern(int centerX, int centerY, int size)
+    {
+        var pixels = new List<GlyphPixel>();
+        var halfSize = size / 2;
+
+        // Horizontal line
+        for (int x = Math.Max(0, centerX - halfSize); x <= Math.Min(24, centerX + halfSize); x++)
+        {
+            pixels.Add(new GlyphPixel(x, centerY, 255));
+        }
+
+        // Vertical line
+        for (int y = Math.Max(0, centerY - halfSize); y <= Math.Min(24, centerY + halfSize); y++)
+        {
+            pixels.Add(new GlyphPixel(centerX, y, 255));
+        }
+
+        return pixels;
+    }
+
+    private IEnumerable<GlyphPixel> GenerateCirclePattern(int centerX, int centerY, int radius)
+    {
+        var pixels = new List<GlyphPixel>();
+
+        for (int x = Math.Max(0, centerX - radius); x <= Math.Min(24, centerX + radius); x++)
+        {
+            for (int y = Math.Max(0, centerY - radius); y <= Math.Min(24, centerY + radius); y++)
+            {
+                var distance = Math.Sqrt(Math.Pow(x - centerX, 2) + Math.Pow(y - centerY, 2));
+                if (distance <= radius)
+                {
+                    pixels.Add(new GlyphPixel(x, y, 255));
+                }
+            }
+        }
+
+        return pixels;
+    }
+
+    private IEnumerable<GlyphPixel> GenerateSquarePattern(int startX, int startY, int size)
+    {
+        var pixels = new List<GlyphPixel>();
+
+        for (int x = startX; x < startX + size && x < IGlyphMatrixService.MatrixWidth; x++)
+        {
+            for (int y = startY; y < startY + size && y < IGlyphMatrixService.MatrixHeight; y++)
+            {
+                if (x >= 0 && y >= 0)
+                {
+                    pixels.Add(new GlyphPixel(x, y, 255));
+                }
+            }
+        }
+
+        return pixels;
+    }
+
+    // Connection Status
+    private string GetConnectionStatus()
+    {
+        var interfaceConnected = InterfaceService.IsConnected;
+        var matrixConnected = MatrixService.IsConnected;
+
+        if (interfaceConnected && matrixConnected) return "Connected";
+        if (interfaceConnected || matrixConnected) return "Partial";
+        return "Disconnected";
+    }
+
+    private Color GetConnectionColor()
+    {
+        var interfaceConnected = InterfaceService.IsConnected;
+        var matrixConnected = MatrixService.IsConnected;
+
+        if (interfaceConnected && matrixConnected) return Color.Success;
+        if (interfaceConnected || matrixConnected) return Color.Warning;
+        return Color.Error;
+    }
+
+    private string GetConnectionIcon()
+    {
+        var interfaceConnected = InterfaceService.IsConnected;
+        var matrixConnected = MatrixService.IsConnected;
+
+        if (interfaceConnected && matrixConnected) return Icons.Material.Filled.Wifi;
+        if (interfaceConnected || matrixConnected) return Icons.Material.Filled.SignalWifiStatusbarConnectedNoInternet4;
+        return Icons.Material.Filled.WifiOff;
+    }
+
+    public void Dispose()
+    {
+        // Unsubscribe from events
+        InterfaceService.ConnectionChanged -= OnInterfaceConnectionChanged;
+        MatrixService.ConnectionChanged -= OnMatrixConnectionChanged;
+        MatrixService.FrameUpdated -= OnMatrixFrameUpdated;
+    }
+}
+
+// Supporting Types
+public enum SimulationMode
+{
+    Interface,
+    Matrix,
+    Unified
+}
+
+public enum MatrixPattern
+{
+    Cross,
+    Circle,
+    Square
+}
