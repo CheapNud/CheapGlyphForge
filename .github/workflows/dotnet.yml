@@ -47,7 +47,7 @@ jobs:
     # Build MAUI project targeting only Android
     - name: Build MAUI Android
       run: |
-        dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj
+        dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-android36.0
         dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-android36.0 --no-restore --configuration Release
 
   build-windows:
@@ -81,7 +81,7 @@ jobs:
     
     - name: Build MAUI Windows
       run: |
-        dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj
+        dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-windows10.0.19041.0
         dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-windows10.0.19041.0 --no-restore --configuration Release
 
   # Separate iOS/macOS job to avoid cross-platform conflicts
@@ -119,9 +119,10 @@ jobs:
     
     - name: Build MAUI iOS
       run: |
-        dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj
+        dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-ios
         dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-ios --no-restore --configuration Release
 
     - name: Build MAUI macOS
       run: |
+        dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-maccatalyst
         dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-maccatalyst --no-restore --configuration Release
