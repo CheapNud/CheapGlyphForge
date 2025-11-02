@@ -213,7 +213,7 @@
                                         <MudDivider Class="my-3" />
 
                                         <MudButtonGroup Variant="Variant.Outlined" Size="Size.Small" Class="mb-2">
-                                            <MudButton OnClick="AnimateAllChannels" StartIcon="Icons.Material.Filled.AutoAwesome">
+                                            <MudButton OnClick="() => AnimateAllChannels()" StartIcon="Icons.Material.Filled.AutoAwesome">
                                                 Animate All
                                             </MudButton>
                                             <MudButton OnClick="TurnOffAllChannels" StartIcon="Icons.Material.Filled.PowerOff">
@@ -639,6 +639,11 @@
     private const string ActiveGlyphColor = "#00ff88";
     private const string InactiveGlyphColor = "#404040";
 
+    // Timing Constants
+    private const int SequencePauseDelayMs = 200;
+    private const int AnimationDurationMs = 1000;
+    private const int AnimationCycles = 3;
+
     // Tab Management
     private int _activeTabIndex = 1; // Start on Matrix tab since Phone3 is default
 
@@ -776,7 +781,12 @@
         try
         {
             _isSequencePlaying = true;
+
+            // Cancel and dispose previous token to prevent memory leaks
+            _sequenceCancellation?.Cancel();
+            _sequenceCancellation?.Dispose();
             _sequenceCancellation = new CancellationTokenSource();
+
             StateHasChanged();
 
             for (int i = 0; i < _repeatCount && !_sequenceCancellation.Token.IsCancellationRequested; i++)
@@ -786,13 +796,13 @@
                 if (_selectedDevice == GlyphDeviceType.Phone3)
                 {
                     // Phone (3) - Matrix-only sequence
-                    await DrawPattern(MatrixPattern.Circle);
+                    await DrawPattern(MatrixPattern.Circle, _sequenceCancellation.Token);
                     await Task.Delay(_sequenceDuration / 3, _sequenceCancellation.Token);
 
-                    await DrawPattern(MatrixPattern.Cross);
+                    await DrawPattern(MatrixPattern.Cross, _sequenceCancellation.Token);
                     await Task.Delay(_sequenceDuration / 3, _sequenceCancellation.Token);
 
-                    await DrawPattern(MatrixPattern.Square);
+                    await DrawPattern(MatrixPattern.Square, _sequenceCancellation.Token);
                     await Task.Delay(_sequenceDuration / 3, _sequenceCancellation.Token);
 
                     await ClearMatrixPixels();
@@ -800,12 +810,12 @@
                 else if (HasBothFeatures())
                 {
                     // Future phones with both features - synchronized sequence
-                    await AnimateAllChannels();
+                    await AnimateAllChannels(_sequenceCancellation.Token);
 
-                    await DrawPattern(MatrixPattern.Circle);
+                    await DrawPattern(MatrixPattern.Circle, _sequenceCancellation.Token);
                     await Task.Delay(_sequenceDuration / 3, _sequenceCancellation.Token);
 
-                    await DrawPattern(MatrixPattern.Cross);
+                    await DrawPattern(MatrixPattern.Cross, _sequenceCancellation.Token);
                     await Task.Delay(_sequenceDuration / 3, _sequenceCancellation.Token);
 
                     await ClearMatrixPixels();
@@ -815,14 +825,14 @@
                 else
                 {
                     // Current phones with only glyphs
-                    await AnimateAllChannels();
+                    await AnimateAllChannels(_sequenceCancellation.Token);
                     await Task.Delay(_sequenceDuration, _sequenceCancellation.Token);
                     await TurnOffAllChannels();
                 }
 
                 if (i < _repeatCount - 1) // Don't delay after last iteration
                 {
-                    await Task.Delay(200, _sequenceCancellation.Token); // Brief pause between iterations
+                    await Task.Delay(SequencePauseDelayMs, _sequenceCancellation.Token); // Brief pause between iterations
                 }
             }
         }
@@ -1376,21 +1386,28 @@
         _ => []
     };
 
-    private async Task AnimateAllChannels()
+    private async Task AnimateAllChannels(CancellationToken cancellationToken = default)
     {
         try
         {
             var channels = GetVisibleChannels();
             foreach (var channel in channels)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var channelNumbers = GetChannelNumbers(channel);
-                await InterfaceService.AnimateChannelsAsync(channelNumbers, 1000, 3);
+                await InterfaceService.AnimateChannelsAsync(channelNumbers, AnimationDurationMs, AnimationCycles);
                 _activeChannels.Add(channel);
                 _channelIntensities[channel] = 255;
             }
 
             Snackbar.Add("Animation started for all channels", Severity.Success);
             _lastUpdate = DateTime.Now;
+        }
+        catch (OperationCanceledException)
+        {
+            Debug.WriteLine("Animation cancelled");
+            throw;
         }
         catch (Exception ex)
         {
@@ -1485,8 +1502,10 @@
         StateHasChanged();
     }
 
-    private async Task DrawPattern(MatrixPattern pattern)
+    private async Task DrawPattern(MatrixPattern pattern, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var pixels = pattern switch
         {
             MatrixPattern.Cross => GenerateCrossPattern(12, 12, 8),
@@ -1507,6 +1526,11 @@
 
             Debug.WriteLine($"Drew {pattern} pattern with {pixels.Count()} pixels");
             _lastUpdate = DateTime.Now;
+        }
+        catch (OperationCanceledException)
+        {
+            Debug.WriteLine($"Drawing {pattern} pattern cancelled");
+            throw;
         }
         catch (Exception ex)
         {

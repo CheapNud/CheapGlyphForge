@@ -23,6 +23,15 @@ jobs:
     timeout-minutes: 10
 
     steps:
+    - name: Validate secrets
+      run: |
+        if [ -z "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
+          echo "::error::ANTHROPIC_API_KEY secret not configured"
+          echo "Please add ANTHROPIC_API_KEY to repository secrets"
+          exit 1
+        fi
+        echo "✅ API key secret validated"
+
     - name: Checkout code
       uses: actions/checkout@v4
       with:
@@ -78,6 +87,7 @@ jobs:
         ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       run: |
         set -e
+        set +x  # Disable command echoing to prevent API key leakage
 
         # Read PR details
         PR_TITLE=$(jq -r '.title' pr-details.json)
