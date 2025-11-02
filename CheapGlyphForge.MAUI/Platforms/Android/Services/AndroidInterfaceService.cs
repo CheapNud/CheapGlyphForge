@@ -236,6 +236,9 @@ public partial class AndroidInterfaceService : IGlyphInterfaceService, IDisposab
             var frame = await Task.Run(() =>
             {
                 var builder = _glyphManager!.GlyphFrameBuilder;
+                if (builder == null)
+                    throw new InvalidOperationException("GlyphFrameBuilder not available");
+
                 foreach (var channel in channels)
                 {
                     builder.BuildChannel(channel);
@@ -267,15 +270,23 @@ public partial class AndroidInterfaceService : IGlyphInterfaceService, IDisposab
             var frame = await Task.Run(() =>
             {
                 var builder = _glyphManager!.GlyphFrameBuilder;
+                if (builder == null)
+                    throw new InvalidOperationException("GlyphFrameBuilder not available");
+
                 foreach (var channel in channels)
                 {
                     builder.BuildChannel(channel);
                 }
-                return builder
+                var builtFrame = builder
                     .BuildPeriod(period)
                     .BuildCycles(cycles)
                     .BuildInterval(interval)
                     .Build();
+
+                if (builtFrame == null)
+                    throw new InvalidOperationException("Failed to build animation frame");
+
+                return builtFrame;
             });
 
             await Task.Run(() => _glyphManager!.Animate(frame));
@@ -302,6 +313,9 @@ public partial class AndroidInterfaceService : IGlyphInterfaceService, IDisposab
             var frame = await Task.Run(() =>
             {
                 var builder = _glyphManager!.GlyphFrameBuilder;
+                if (builder == null)
+                    throw new InvalidOperationException("GlyphFrameBuilder not available");
+
                 foreach (var channel in channels)
                 {
                     builder.BuildChannel(channel);
@@ -333,6 +347,9 @@ public partial class AndroidInterfaceService : IGlyphInterfaceService, IDisposab
             var frame = await Task.Run(() =>
             {
                 var builder = _glyphManager!.GlyphFrameBuilder;
+                if (builder == null)
+                    throw new InvalidOperationException("GlyphFrameBuilder not available");
+
                 foreach (var channel in channels)
                 {
                     builder.BuildChannel(channel);

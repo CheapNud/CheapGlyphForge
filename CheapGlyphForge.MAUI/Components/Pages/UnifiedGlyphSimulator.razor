@@ -14,7 +14,7 @@
 
     <!-- Header Section -->
     <MudPaper Class="pa-4 mb-4" Elevation="2">
-        <MudGrid AlignItems="Center">
+        <MudGrid>
             <MudItem xs="12" md="8">
                 <MudText Typo="Typo.h4" Class="mb-2">🔆 Unified Glyph Simulator</MudText>
                 <MudText Typo="Typo.body1" Color="Color.Secondary">
@@ -176,7 +176,7 @@
                         {
                             <!-- Individual Channel Controls -->
                             <MudExpansionPanels Class="mb-4">
-                                <MudExpansionPanel IsExpanded="true">
+                                <MudExpansionPanel @bind-Expanded="@_interfaceChannelsExpanded">
                                     <TitleContent>
                                         <div style="display: flex; align-items: center;">
                                             <MudIcon Icon="Icons.Material.Filled.Lightbulb" Class="mr-3" />
@@ -186,7 +186,7 @@
                                     <ChildContent>
                                         @foreach (var channel in GetVisibleChannels())
                                         {
-                                            <MudGrid AlignItems="Center" Class="mb-2">
+                                            <MudGrid Class="mb-2">
                                                 <MudItem xs="3">
                                                     <MudButton Variant="Variant.Outlined"
                                                                Color="Color.Primary"
@@ -323,7 +323,7 @@
                             <MudText Typo="Typo.h6" Class="mb-4">Matrix Controls</MudText>
 
                             <MudExpansionPanels Class="mb-4">
-                                <MudExpansionPanel IsExpanded="true">
+                                <MudExpansionPanel @bind-Expanded="@_matrixControlsExpanded">
                                     <TitleContent>
                                         <div style="display: flex; align-items: center;">
                                             <MudIcon Icon="Icons.Material.Filled.GridOn" Class="mr-3" />
@@ -351,8 +351,8 @@
                                             </MudItem>
                                         </MudGrid>
 
+                                        <MudText Typo="Typo.body2" Class="mb-1">Intensity</MudText>
                                         <MudSlider T="int"
-                                                   Label="Intensity"
                                                    Min="0"
                                                    Max="255"
                                                    Step="1"
@@ -553,7 +553,7 @@
 
                         <!-- Timing Engine Controls -->
                         <MudExpansionPanels Class="mb-4">
-                            <MudExpansionPanel IsExpanded="true">
+                            <MudExpansionPanel @bind-Expanded="@_sequenceControlsExpanded">
                                 <TitleContent>
                                     <div style="display: flex; align-items: center;">
                                         <MudIcon Icon="Icons.Material.Filled.Timer" Class="mr-3" />
@@ -561,8 +561,8 @@
                                     </div>
                                 </TitleContent>
                                 <ChildContent>
+                                    <MudText Typo="Typo.body2" Class="mb-1">Sequence Duration (ms)</MudText>
                                     <MudSlider T="int"
-                                               Label="Sequence Duration (ms)"
                                                Min="100"
                                                Max="5000"
                                                Step="100"
@@ -570,8 +570,8 @@
                                                ValueChanged="(int value) => _sequenceDuration = value"
                                                Class="mb-3" />
 
+                                    <MudText Typo="Typo.body2" Class="mb-1">Repeat Count</MudText>
                                     <MudSlider T="int"
-                                               Label="Repeat Count"
                                                Min="1"
                                                Max="10"
                                                Step="1"
@@ -652,6 +652,11 @@
     private int _repeatCount = 1;
     private bool _isSequencePlaying = false;
     private CancellationTokenSource? _sequenceCancellation;
+
+    // Expansion Panel States (MudBlazor 8.13.0 uses 'Expanded' property)
+    private bool _interfaceChannelsExpanded = true;
+    private bool _matrixControlsExpanded = true;
+    private bool _sequenceControlsExpanded = true;
 
     // Existing state properties
     private int _debugPixelCount = 0;
