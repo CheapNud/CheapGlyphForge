@@ -32,19 +32,20 @@ jobs:
         dotnet workload install maui-android
         dotnet workload install android
 
-    # Build Core completely first
+    # Build dependencies first for faster MAUI build with --no-dependencies
     - name: Build Core
       run: dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --configuration Release
 
-    # Build Android bindings
     - name: Build Android Bindings
       run: |
         dotnet build CheapGlyphForge.GlyphInterface.Binding/CheapGlyphForge.GlyphInterface.Binding.csproj --configuration Release
         dotnet build CheapGlyphForge.GlyphMatrix.Binding/CheapGlyphForge.GlyphMatrix.Binding.csproj --configuration Release
 
-    # Build MAUI project targeting only Android (dependencies already built)
+    # Build MAUI project targeting only Android (dependencies already built - faster with --no-dependencies)
     - name: Build MAUI Android
-      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release /p:TargetFrameworks=net10.0-android36.0 --no-dependencies
+      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release --no-dependencies
+      env:
+        TargetFrameworksOverride: net10.0-android36.0
 
   build-windows:
     runs-on: windows-latest
@@ -69,13 +70,15 @@ jobs:
     - name: Install Windows workload
       run: dotnet workload install maui-windows
 
-    # Build Core completely first
+    # Build Core first for faster MAUI build with --no-dependencies
     - name: Build Core
       run: dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --configuration Release
 
-    # Build MAUI Windows (Core is already built as a DLL)
+    # Build MAUI Windows (Core already built - faster with --no-dependencies)
     - name: Build MAUI Windows
-      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release /p:TargetFrameworks=net10.0-windows10.0.19041.0 --no-dependencies
+      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release --no-dependencies
+      env:
+        TargetFrameworksOverride: net10.0-windows10.0.19041.0
 
   # Separate iOS/macOS job to avoid cross-platform conflicts
   build-ios-macos:
@@ -104,14 +107,18 @@ jobs:
         dotnet workload install maui-ios
         dotnet workload install maui-maccatalyst
 
-    # Build Core completely first
+    # Build Core first for faster MAUI builds with --no-dependencies
     - name: Build Core
       run: dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --configuration Release
 
-    # Build MAUI iOS (Core is already built as a DLL)
+    # Build MAUI iOS (Core already built - faster with --no-dependencies)
     - name: Build MAUI iOS
-      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release /p:TargetFrameworks=net10.0-ios --no-dependencies
+      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release --no-dependencies
+      env:
+        TargetFrameworksOverride: net10.0-ios
 
-    # Build MAUI macOS (Core is already built as a DLL)
+    # Build MAUI macOS (Core already built - faster with --no-dependencies)
     - name: Build MAUI macOS
-      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release /p:TargetFrameworks=net10.0-maccatalyst --no-dependencies
+      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release --no-dependencies
+      env:
+        TargetFrameworksOverride: net10.0-maccatalyst
