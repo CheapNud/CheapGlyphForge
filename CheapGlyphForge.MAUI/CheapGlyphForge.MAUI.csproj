@@ -1,8 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFrameworks>net10.0-ios;net10.0-maccatalyst;net10.0-android36.0</TargetFrameworks>
-    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
+    <!-- Allow CI to override TargetFrameworks via environment variable for single-platform builds -->
+    <TargetFrameworks Condition="'$(TargetFrameworksOverride)' != ''">$(TargetFrameworksOverride)</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetFrameworksOverride)' == ''">net10.0-ios;net10.0-maccatalyst;net10.0-android36.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TargetFrameworksOverride)' == '' AND $([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
     <!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
     <!-- <TargetFrameworks>$(TargetFrameworks);net10.0-tizen</TargetFrameworks> -->
 
