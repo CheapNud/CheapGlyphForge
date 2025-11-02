@@ -46,9 +46,7 @@ jobs:
     
     # Build MAUI project targeting only Android
     - name: Build MAUI Android
-      run: |
-        dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-android36.0
-        dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-android36.0 --no-restore --configuration Release
+      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-android36.0 --configuration Release /p:TargetFramework=net10.0-android36.0
 
   build-windows:
     runs-on: windows-latest
@@ -80,9 +78,7 @@ jobs:
         dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --no-restore --configuration Release
     
     - name: Build MAUI Windows
-      run: |
-        dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-windows10.0.19041.0
-        dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-windows10.0.19041.0 --no-restore --configuration Release
+      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-windows10.0.19041.0 --configuration Release /p:TargetFramework=net10.0-windows10.0.19041.0
 
   # Separate iOS/macOS job to avoid cross-platform conflicts
   build-ios-macos:
@@ -118,11 +114,7 @@ jobs:
         dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --no-restore --configuration Release
     
     - name: Build MAUI iOS
-      run: |
-        dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-ios
-        dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-ios --no-restore --configuration Release
+      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-ios --configuration Release /p:TargetFramework=net10.0-ios
 
     - name: Build MAUI macOS
-      run: |
-        dotnet restore CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-maccatalyst
-        dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-maccatalyst --no-restore --configuration Release
+      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --framework net10.0-maccatalyst --configuration Release /p:TargetFramework=net10.0-maccatalyst
