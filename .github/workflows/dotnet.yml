@@ -31,20 +31,8 @@ jobs:
       run: |
         dotnet workload install maui-android
         dotnet workload install android
-    
-    # Build Core library first (platform-agnostic)
-    - name: Build Core
-      run: |
-        dotnet restore CheapGlyphForge.Core/CheapGlyphForge.Core.csproj
-        dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --no-restore --configuration Release
-    
-    # Build Matrix binding (Android only) 
-    - name: Build Matrix Binding
-      run: |
-        dotnet restore CheapGlyphForge.GlyphMatrix.Binding/CheapGlyphForge.GlyphMatrix.Binding.csproj
-        dotnet build CheapGlyphForge.GlyphMatrix.Binding/CheapGlyphForge.GlyphMatrix.Binding.csproj --no-restore --configuration Release
-    
-    # Build MAUI project targeting only Android
+
+    # Build MAUI project targeting only Android (will restore and build dependencies)
     - name: Build MAUI Android
       run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release /p:TargetFrameworks=net10.0-android36.0
 
@@ -70,13 +58,8 @@ jobs:
     # Install only Windows MAUI workload
     - name: Install Windows workload
       run: dotnet workload install maui-windows
-    
-    # Build only Core + MAUI Windows (skip Android binding)
-    - name: Build Core
-      run: |
-        dotnet restore CheapGlyphForge.Core/CheapGlyphForge.Core.csproj
-        dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --no-restore --configuration Release
-    
+
+    # Build MAUI Windows (will restore and build Core dependency)
     - name: Build MAUI Windows
       run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release /p:TargetFrameworks=net10.0-windows10.0.19041.0
 
@@ -106,15 +89,11 @@ jobs:
       run: |
         dotnet workload install maui-ios
         dotnet workload install maui-maccatalyst
-    
-    # Build only Core + MAUI iOS/macOS (skip Android binding)
-    - name: Build Core
-      run: |
-        dotnet restore CheapGlyphForge.Core/CheapGlyphForge.Core.csproj
-        dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --no-restore --configuration Release
-    
+
+    # Build MAUI iOS (will restore and build Core dependency)
     - name: Build MAUI iOS
       run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release /p:TargetFrameworks=net10.0-ios
 
+    # Build MAUI macOS (will restore and build Core dependency)
     - name: Build MAUI macOS
       run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release /p:TargetFrameworks=net10.0-maccatalyst
