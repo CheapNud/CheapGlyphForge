@@ -1,7 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <!-- Allow CI to override TargetFrameworks via environment variable for single-platform builds -->
+    <!--
+      CI Build Optimization: Allow GitHub Actions to override TargetFrameworks via environment variable.
+      This enables single-platform builds in CI (e.g., building only Android on Linux runners)
+      without triggering workload errors for unavailable platforms (e.g., iOS workloads on Linux).
+
+      Usage in CI: Set environment variable TargetFrameworksOverride=net10.0-android36.0
+      Local dev: No environment variable set, so all platforms build normally.
+    -->
     <TargetFrameworks Condition="'$(TargetFrameworksOverride)' != ''">$(TargetFrameworksOverride)</TargetFrameworks>
     <TargetFrameworks Condition="'$(TargetFrameworksOverride)' == ''">net10.0-ios;net10.0-maccatalyst;net10.0-android36.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(TargetFrameworksOverride)' == '' AND $([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
@@ -36,7 +43,20 @@
     <!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
     <WindowsPackageType>None</WindowsPackageType>
 
-    <!-- Workaround for Android bundletool error in .NET 10 preview -->
+    <!--
+      Android Build Workarounds for .NET 10 RC2 + Android API 36:
+
+      Issue: Bundletool error "File 'root/res/values/values.xml' uses reserved file or directory name 'res'"
+      This is a known bug in .NET 10 RC2 when building Android App Bundles (AAB) for API 36.
+
+      Solution: Force APK format instead of AAB to bypass bundletool entirely.
+      - AndroidPackageFormat=apk: Build APK instead of AAB (bypasses bundletool bug)
+      - EmbedAssembliesIntoApk=true: Required for APK format to embed .NET assemblies
+      - AndroidCreatePackagePerAbi=false: Single APK for all architectures (faster CI builds)
+      - AndroidUseAapt2=true: Use newer Android Asset Packaging Tool 2
+
+      TODO: Remove these workarounds when .NET 10 stable is released or bug is fixed.
+    -->
     <AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
     <AndroidUseAapt2>true</AndroidUseAapt2>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
