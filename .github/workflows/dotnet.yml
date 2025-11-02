@@ -32,13 +32,13 @@ jobs:
         dotnet workload install maui-android
         dotnet workload install android
 
-    # Clean any cached build artifacts
-    - name: Clean solution
-      run: dotnet clean --configuration Release
+    # Explicitly restore Core to generate assets file
+    - name: Restore Core dependencies
+      run: dotnet restore CheapGlyphForge.Core/CheapGlyphForge.Core.csproj
 
     # Build MAUI project targeting only Android
     - name: Build MAUI Android
-      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release /p:TargetFrameworks=net10.0-android36.0 /p:RestoreForce=true
+      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release /p:TargetFrameworks=net10.0-android36.0
 
   build-windows:
     runs-on: windows-latest
@@ -63,13 +63,13 @@ jobs:
     - name: Install Windows workload
       run: dotnet workload install maui-windows
 
-    # Clean any cached build artifacts
-    - name: Clean solution
-      run: dotnet clean --configuration Release
+    # Explicitly restore Core to generate assets file
+    - name: Restore Core dependencies
+      run: dotnet restore CheapGlyphForge.Core/CheapGlyphForge.Core.csproj
 
     # Build MAUI Windows
     - name: Build MAUI Windows
-      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release /p:TargetFrameworks=net10.0-windows10.0.19041.0 /p:RestoreForce=true
+      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release /p:TargetFrameworks=net10.0-windows10.0.19041.0
 
   # Separate iOS/macOS job to avoid cross-platform conflicts
   build-ios-macos:
@@ -98,14 +98,14 @@ jobs:
         dotnet workload install maui-ios
         dotnet workload install maui-maccatalyst
 
-    # Clean any cached build artifacts
-    - name: Clean solution
-      run: dotnet clean --configuration Release
+    # Explicitly restore Core to generate assets file
+    - name: Restore Core dependencies
+      run: dotnet restore CheapGlyphForge.Core/CheapGlyphForge.Core.csproj
 
     # Build MAUI iOS
     - name: Build MAUI iOS
-      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release /p:TargetFrameworks=net10.0-ios /p:RestoreForce=true
+      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release /p:TargetFrameworks=net10.0-ios
 
     # Build MAUI macOS
     - name: Build MAUI macOS
-      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release /p:TargetFrameworks=net10.0-maccatalyst /p:RestoreForce=true
+      run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release /p:TargetFrameworks=net10.0-maccatalyst
