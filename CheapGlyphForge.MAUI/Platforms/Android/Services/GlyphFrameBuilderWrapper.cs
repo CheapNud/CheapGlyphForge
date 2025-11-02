@@ -74,6 +74,9 @@ internal class GlyphFrameBuilderWrapper(GlyphFrame.Builder nativeBuilder) : IGly
     public IGlyphFrame Build()
     {
         var nativeFrame = _nativeBuilder.Build();
+        if (nativeFrame == null)
+            throw new InvalidOperationException("Failed to build native GlyphFrame");
+
         return new GlyphFrameWrapper(nativeFrame);
     }
 }

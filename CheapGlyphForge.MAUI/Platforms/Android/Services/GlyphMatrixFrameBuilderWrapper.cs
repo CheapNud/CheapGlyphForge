@@ -82,6 +82,9 @@ public class GlyphMatrixFrameBuilderWrapper : IGlyphMatrixFrameBuilder
         try
         {
             var nativeFrame = _builder.Build(_context);
+            if (nativeFrame == null)
+                throw new InvalidOperationException("Failed to build native GlyphMatrixFrame");
+
             Debug.WriteLine("GlyphMatrixFrameBuilderWrapper: Successfully built matrix frame");
             return new GlyphMatrixFrameWrapper(nativeFrame);
         }
@@ -136,7 +139,11 @@ public class GlyphMatrixFrameBuilderWrapper : IGlyphMatrixFrameBuilder
         }
 
         // Build and return the native object
-        return builder.Build();
+        var nativeObject = builder.Build();
+        if (nativeObject == null)
+            throw new InvalidOperationException("Failed to build native GlyphMatrixObject");
+
+        return nativeObject;
     }
 
     /// <summary>

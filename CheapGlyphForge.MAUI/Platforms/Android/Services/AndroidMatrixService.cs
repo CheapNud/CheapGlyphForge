@@ -331,10 +331,22 @@ public partial class AndroidMatrixService : IGlyphMatrixService, IDisposable
             objectBuilder.SetText(text, marqueeType);
 
             var textObject = objectBuilder.Build();
-            var frame = frameBuilder.AddTop(textObject).Build(_context);
+            if (textObject == null)
+                throw new InvalidOperationException("Failed to build text object");
+
+            var frameWithObject = frameBuilder.AddTop(textObject);
+            if (frameWithObject == null)
+                throw new InvalidOperationException("Failed to add text object to frame");
+
+            var frame = frameWithObject.Build(_context);
+            if (frame == null)
+                throw new InvalidOperationException("Failed to build matrix frame");
 
             // Render and send to matrix
             var renderedData = frame.Render();
+            if (renderedData == null)
+                throw new InvalidOperationException("Failed to render matrix frame");
+
             await Task.Run(() => _glyphMatrixManager!.SetMatrixFrame(renderedData));
 
             FrameUpdated?.Invoke(this, new GlyphMatrixUpdateEventArgs($"Text '{text}' rendered", text.Length));
