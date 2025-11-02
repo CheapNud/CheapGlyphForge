@@ -176,7 +176,7 @@
                         {
                             <!-- Individual Channel Controls -->
                             <MudExpansionPanels Class="mb-4">
-                                <MudExpansionPanel @bind-Expanded="@_interfaceChannelsExpanded">
+                                <MudExpansionPanel Expanded="true">
                                     <TitleContent>
                                         <div style="display: flex; align-items: center;">
                                             <MudIcon Icon="Icons.Material.Filled.Lightbulb" Class="mr-3" />
@@ -323,7 +323,7 @@
                             <MudText Typo="Typo.h6" Class="mb-4">Matrix Controls</MudText>
 
                             <MudExpansionPanels Class="mb-4">
-                                <MudExpansionPanel @bind-Expanded="@_matrixControlsExpanded">
+                                <MudExpansionPanel Expanded="true">
                                     <TitleContent>
                                         <div style="display: flex; align-items: center;">
                                             <MudIcon Icon="Icons.Material.Filled.GridOn" Class="mr-3" />
@@ -553,7 +553,7 @@
 
                         <!-- Timing Engine Controls -->
                         <MudExpansionPanels Class="mb-4">
-                            <MudExpansionPanel @bind-Expanded="@_sequenceControlsExpanded">
+                            <MudExpansionPanel Expanded="true">
                                 <TitleContent>
                                     <div style="display: flex; align-items: center;">
                                         <MudIcon Icon="Icons.Material.Filled.Timer" Class="mr-3" />
@@ -652,11 +652,6 @@
     private int _repeatCount = 1;
     private bool _isSequencePlaying = false;
     private CancellationTokenSource? _sequenceCancellation;
-
-    // Expansion Panel States (MudBlazor 8.13.0 uses 'Expanded' property)
-    private bool _interfaceChannelsExpanded = true;
-    private bool _matrixControlsExpanded = true;
-    private bool _sequenceControlsExpanded = true;
 
     // Existing state properties
     private int _debugPixelCount = 0;
