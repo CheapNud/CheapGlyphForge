@@ -14,19 +14,17 @@
 
     <!-- Header Section -->
     <MudPaper Class="pa-4 mb-4" Elevation="2">
-        <MudGrid>
-            <MudItem xs="12" md="8">
-                <MudText Typo="Typo.h4" Class="mb-2">🔆 Unified Glyph Simulator</MudText>
-                <MudText Typo="Typo.body1" Color="Color.Secondary">
-                    Simulate Nothing Phone LED Glyphs and Matrix displays. Phone (3) features Matrix-only technology.
+        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+            <MudStack Spacing="1">
+                <MudText Typo="Typo.h4">Unified Glyph Simulator</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Simulate Nothing Phone LED Glyphs and Matrix displays
                 </MudText>
-            </MudItem>
-            <MudItem xs="12" md="4" Class="text-right">
-                <MudChip T="string" Icon="@GetConnectionIcon()" Color="@GetConnectionColor()" Label="true">
-                    @GetConnectionStatus()
-                </MudChip>
-            </MudItem>
-        </MudGrid>
+            </MudStack>
+            <MudChip T="string" Icon="@GetConnectionIcon()" Color="@GetConnectionColor()" Variant="Variant.Filled">
+                @GetConnectionStatus()
+            </MudChip>
+        </MudStack>
     </MudPaper>
 
     <!-- Device Selection -->
@@ -48,11 +46,12 @@
              ActivePanelIndexChanged="OnTabChanged"
              KeepPanelsAlive="true">
 
-        <!-- 🎨 Tab 1: Glyph Designer - Available for glyph-capable devices -->
-        <MudTabPanel Text="@GetGlyphTabText()"
-                     Icon="@Icons.Material.Filled.LightMode"
-                     ID=@("glyph-designer")
-                     Disabled="@(!HasGlyphs())">
+        <!-- 🎨 Tab 1: Glyph Designer - Only show for glyph-capable devices -->
+        @if (HasGlyphs())
+        {
+            <MudTabPanel Text="Glyph Designer"
+                         Icon="@Icons.Material.Filled.LightMode"
+                         ID=@("glyph-designer")>
 
             <MudGrid Class="mt-4">
                 <!-- Glyph Visualization Area -->
@@ -60,23 +59,6 @@
                     <MudPaper Class="pa-4" Elevation="2">
                         <MudText Typo="Typo.h6" Class="mb-4">@GetGlyphDesignTitle()</MudText>
 
-                        @if (!HasGlyphs())
-                        {
-                            <!-- Phone (3) - No Glyph Support Message -->
-                            <MudAlert Severity="Severity.Info" Class="mb-4">
-                                <MudText><strong>@GetDeviceDisplayName(_selectedDevice)</strong> does not have traditional LED glyph strips.</MudText>
-                                <MudText>This device features only the Matrix display. Switch to the <strong>Matrix Playground</strong> tab to explore its capabilities.</MudText>
-                            </MudAlert>
-
-                            <!-- Future-proofing message -->
-                            <MudPaper Class="pa-4" Style="background-color: rgba(128,128,128,0.1);">
-                                <MudText Typo="Typo.body2" Style="color: #888;">
-                                    <MudIcon Icon="@Icons.Material.Filled.Info" Size="Size.Small" Class="mr-2" />
-                                    Future Nothing Phone models may combine both LED glyphs and Matrix displays.
-                                </MudText>
-                            </MudPaper>
-                        }
-                        else
                         {
                             <!-- Phone Outline Container -->
                             <div style="position: relative; width: 100%; max-width: 400px; margin: 0 auto; aspect-ratio: 0.47;">
@@ -89,70 +71,106 @@
                                 {
                                     <!-- Nothing Phone (2) - CORRECTED AUTHENTIC LAYOUT -->
                                     <!-- Channel A: Camera Ring (top left) -->
-                                    <div style="@GetPhone2ChannelAStyle()" @onclick="@(() => ToggleChannel("A"))">
-                                        <div style="@GetLEDStripStyle("A", "ring")"></div>
-                                    </div>
+                                    <MudTooltip Text="Camera - 1 LED">
+                                        <div style="@GetPhone2ChannelAStyle()" @onclick="@(() => ToggleChannel("A"))">
+                                            <div style="@GetLEDStripStyle("A", "ring")"></div>
+                                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; color: rgba(255,255,255,0.7); text-shadow: 0 0 4px rgba(0,0,0,0.8);">A</div>
+                                        </div>
+                                    </MudTooltip>
 
                                     <!-- Channel B: Diagonal Line (top right) -->
-                                    <div style="@GetPhone2ChannelBStyle()" @onclick="@(() => ToggleChannel("B"))">
-                                        <div style="@GetLEDStripStyle("B", "diagonal")"></div>
-                                    </div>
+                                    <MudTooltip Text="Diagonal - 1 LED">
+                                        <div style="@GetPhone2ChannelBStyle()" @onclick="@(() => ToggleChannel("B"))">
+                                            <div style="@GetLEDStripStyle("B", "diagonal")"></div>
+                                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; color: rgba(255,255,255,0.7); text-shadow: 0 0 4px rgba(0,0,0,0.8);">B</div>
+                                        </div>
+                                    </MudTooltip>
 
                                     <!-- Channel C: Large Center Circle -->
-                                    <div style="@GetPhone2ChannelCStyle()" @onclick="@(() => ToggleChannel("C"))">
-                                        <div style="@GetLEDStripStyle("C", "circle")"></div>
-                                    </div>
+                                    <MudTooltip Text="Circle - 24 LEDs">
+                                        <div style="@GetPhone2ChannelCStyle()" @onclick="@(() => ToggleChannel("C"))">
+                                            <div style="@GetLEDStripStyle("C", "circle")"></div>
+                                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; color: rgba(255,255,255,0.7); text-shadow: 0 0 4px rgba(0,0,0,0.8);">C</div>
+                                        </div>
+                                    </MudTooltip>
 
                                     <!-- Channel D: Vertical Line (bottom center) -->
-                                    <div style="@GetPhone2ChannelDStyle()" @onclick="@(() => ToggleChannel("D"))">
-                                        <div style="@GetLEDStripStyle("D", "vertical")"></div>
-                                    </div>
+                                    <MudTooltip Text="USB Line - 7 LEDs">
+                                        <div style="@GetPhone2ChannelDStyle()" @onclick="@(() => ToggleChannel("D"))">
+                                            <div style="@GetLEDStripStyle("D", "vertical")"></div>
+                                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; color: rgba(255,255,255,0.7); text-shadow: 0 0 4px rgba(0,0,0,0.8);">D</div>
+                                        </div>
+                                    </MudTooltip>
 
                                     <!-- Channel E: Small Dot (bottom) -->
-                                    <div style="@GetPhone2ChannelEStyle()" @onclick="@(() => ToggleChannel("E"))">
-                                        <div style="@GetLEDStripStyle("E", "dot")"></div>
-                                    </div>
+                                    <MudTooltip Text="USB Dot - 6 LEDs">
+                                        <div style="@GetPhone2ChannelEStyle()" @onclick="@(() => ToggleChannel("E"))">
+                                            <div style="@GetLEDStripStyle("E", "dot")"></div>
+                                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; color: rgba(255,255,255,0.7); text-shadow: 0 0 4px rgba(0,0,0,0.8);">E</div>
+                                        </div>
+                                    </MudTooltip>
                                 }
                                 else if (_selectedDevice == GlyphDeviceType.Phone1)
                                 {
                                     <!-- Nothing Phone (1) - CORRECTED AUTHENTIC LAYOUT -->
                                     <!-- Channel A: Camera Ring on LEFT -->
-                                    <div style="@GetPhone1ChannelAStyle()" @onclick="@(() => ToggleChannel("A"))">
-                                        <div style="@GetLEDStripStyle("A", "ring")"></div>
-                                    </div>
+                                    <MudTooltip Text="Camera - 1 LED">
+                                        <div style="@GetPhone1ChannelAStyle()" @onclick="@(() => ToggleChannel("A"))">
+                                            <div style="@GetLEDStripStyle("A", "ring")"></div>
+                                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; color: rgba(255,255,255,0.7); text-shadow: 0 0 4px rgba(0,0,0,0.8);">A</div>
+                                        </div>
+                                    </MudTooltip>
 
                                     <!-- Channel B: Diagonal Strip on RIGHT -->
-                                    <div style="@GetPhone1ChannelBStyle()" @onclick="@(() => ToggleChannel("B"))">
-                                        <div style="@GetLEDStripStyle("B", "diagonal")"></div>
-                                    </div>
+                                    <MudTooltip Text="Diagonal - 8 LEDs">
+                                        <div style="@GetPhone1ChannelBStyle()" @onclick="@(() => ToggleChannel("B"))">
+                                            <div style="@GetLEDStripStyle("B", "diagonal")"></div>
+                                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; color: rgba(255,255,255,0.7); text-shadow: 0 0 4px rgba(0,0,0,0.8);">B</div>
+                                        </div>
+                                    </MudTooltip>
 
                                     <!-- Channel C: Horizontal Bar at BOTTOM -->
-                                    <div style="@GetPhone1ChannelCStyle()" @onclick="@(() => ToggleChannel("C"))">
-                                        <div style="@GetLEDStripStyle("C", "horizontal")"></div>
-                                    </div>
+                                    <MudTooltip Text="Battery - 16 LEDs">
+                                        <div style="@GetPhone1ChannelCStyle()" @onclick="@(() => ToggleChannel("C"))">
+                                            <div style="@GetLEDStripStyle("C", "horizontal")"></div>
+                                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; color: rgba(255,255,255,0.7); text-shadow: 0 0 4px rgba(0,0,0,0.8);">C</div>
+                                        </div>
+                                    </MudTooltip>
 
                                     <!-- Channel D: Square in MIDDLE -->
-                                    <div style="@GetPhone1ChannelDStyle()" @onclick="@(() => ToggleChannel("D"))">
-                                        <div style="@GetLEDStripStyle("D", "square")"></div>
-                                    </div>
+                                    <MudTooltip Text="USB Line - 8 LEDs">
+                                        <div style="@GetPhone1ChannelDStyle()" @onclick="@(() => ToggleChannel("D"))">
+                                            <div style="@GetLEDStripStyle("D", "square")"></div>
+                                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; color: rgba(255,255,255,0.7); text-shadow: 0 0 4px rgba(0,0,0,0.8);">D</div>
+                                        </div>
+                                    </MudTooltip>
                                 }
                                 else
                                 {
                                     <!-- Nothing Phone (2a) variants - CORRECTED AUTHENTIC LAYOUT -->
                                     <!-- Channel A: Camera Outline (top area) -->
-                                    <div style="@GetPhone2aChannelAStyle()" @onclick="@(() => ToggleChannel("A"))">
-                                        <div style="@GetLEDStripStyle("A", "ring")"></div>
-                                    </div>
+                                    <MudTooltip Text="Camera - 1 LED">
+                                        <div style="@GetPhone2aChannelAStyle()" @onclick="@(() => ToggleChannel("A"))">
+                                            <div style="@GetLEDStripStyle("A", "ring")"></div>
+                                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; color: rgba(255,255,255,0.7); text-shadow: 0 0 4px rgba(0,0,0,0.8);">A</div>
+                                        </div>
+                                    </MudTooltip>
 
                                     <!-- Channel B: Vertical Lines (right side) -->
-                                    <div style="@GetPhone2aChannelBStyle()" @onclick="@(() => ToggleChannel("B"))">
-                                        <div style="@GetLEDStripStyle("B", "vertical")"></div>
-                                    </div>
+                                    <MudTooltip Text="Vertical - 1 LED">
+                                        <div style="@GetPhone2aChannelBStyle()" @onclick="@(() => ToggleChannel("B"))">
+                                            <div style="@GetLEDStripStyle("B", "vertical")"></div>
+                                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; color: rgba(255,255,255,0.7); text-shadow: 0 0 4px rgba(0,0,0,0.8);">B</div>
+                                        </div>
+                                    </MudTooltip>
 
                                     <!-- Channel C: Small Red Square (bottom right) -->
-                                    <div style="@GetPhone2aChannelCStyle()" @onclick="@(() => ToggleChannel("C"))">
-                                        <div style="@GetLEDStripStyle("C", "square")"></div>
-                                    </div>
+                                    <MudTooltip Text="Battery - 24 LEDs">
+                                        <div style="@GetPhone2aChannelCStyle()" @onclick="@(() => ToggleChannel("C"))">
+                                            <div style="@GetLEDStripStyle("C", "square")"></div>
+                                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; color: rgba(255,255,255,0.7); text-shadow: 0 0 4px rgba(0,0,0,0.8);">C</div>
+                                        </div>
+                                    </MudTooltip>
                                 }
                             </div>
                         }
@@ -161,98 +179,114 @@
 
                 <!-- Glyph Controls -->
                 <MudItem xs="12" lg="4">
-                    <MudPaper Class="pa-4" Elevation="2">
-                        <MudText Typo="Typo.h6" Class="mb-4">Glyph Controls</MudText>
+                    <!-- Channel Controls -->
+                        <MudPaper Class="pa-4 mb-4" Elevation="2">
+                            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-3">
+                                <MudText Typo="Typo.h6">Channel Control</MudText>
+                                @if (_selectedDevice == GlyphDeviceType.Phone1)
+                                {
+                                    <MudTooltip Text="@(_phone1AdvancedMode ? "Switch to basic 4-zone mode" : "Switch to advanced 13-zone mode with individual LED control")">
+                                        <MudSwitch T="bool"
+                                                   Value="@_phone1AdvancedMode"
+                                                   ValueChanged="OnAdvancedModeChanged"
+                                                   Color="Color.Primary"
+                                                   Label="@(_phone1AdvancedMode ? "Advanced" : "Basic")"
+                                                   Size="Size.Small" />
+                                    </MudTooltip>
+                                }
+                            </MudStack>
 
-                        @if (!HasGlyphs())
-                        {
-                            <!-- Phone (3) - No Glyph Controls Available -->
-                            <MudAlert Severity="Severity.Warning" Class="mb-4">
-                                <MudText><strong>@GetDeviceDisplayName(_selectedDevice)</strong> does not support glyph controls.</MudText>
-                                <MudText>Switch to the <strong>Matrix Playground</strong> tab for device-specific controls.</MudText>
-                            </MudAlert>
-                        }
-                        else
-                        {
-                            <!-- Individual Channel Controls -->
-                            <MudExpansionPanels Class="mb-4">
-                                <MudExpansionPanel Expanded="true">
-                                    <TitleContent>
-                                        <div style="display: flex; align-items: center;">
-                                            <MudIcon Icon="Icons.Material.Filled.Lightbulb" Class="mr-3" />
-                                            <MudText>Interface Channels</MudText>
-                                        </div>
-                                    </TitleContent>
-                                    <ChildContent>
-                                        @foreach (var channel in GetVisibleChannels())
-                                        {
-                                            <MudGrid Class="mb-2">
-                                                <MudItem xs="3">
-                                                    <MudButton Variant="Variant.Outlined"
+                            <MudStack Spacing="3">
+                                @foreach (var channel in GetVisibleChannels())
+                                {
+                                    <MudStack Spacing="1">
+                                        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                                <MudTooltip Text="@GlyphChannelInfoProvider.GetChannelTooltip(channel)">
+                                                    <MudButton Variant="@(_activeChannels.Contains(channel.Id) ? Variant.Filled : Variant.Outlined)"
                                                                Color="Color.Primary"
                                                                Size="Size.Small"
-                                                               OnClick="() => ToggleChannel(channel)">
-                                                        @channel
+                                                               OnClick="() => ToggleChannel(channel.Id)"
+                                                               Style="min-width: 50px;">
+                                                        @channel.Id
                                                     </MudButton>
-                                                </MudItem>
-                                                <MudItem xs="6">
-                                                    <MudSlider T="int"
-                                                               Min="0"
-                                                               Max="255"
-                                                               Step="1"
-                                                               Value="@GetChannelIntensity(channel)"
-                                                               ValueChanged="(int value) => SetChannelIntensity(channel, value)"
-                                                               Class="mx-2" />
-                                                </MudItem>
-                                                <MudItem xs="3">
-                                                    <MudText Typo="Typo.caption">@GetChannelIntensity(channel)</MudText>
-                                                </MudItem>
-                                            </MudGrid>
-                                        }
+                                                </MudTooltip>
+                                                <MudText Typo="Typo.body2">@channel.Name</MudText>
+                                            </MudStack>
+                                            <MudChip T="string" Size="Size.Small" Variant="Variant.Text" Color="Color.Primary">
+                                                @GetChannelIntensity(channel.Id)
+                                            </MudChip>
+                                        </MudStack>
+                                        <MudSlider T="int"
+                                                   Min="0"
+                                                   Max="255"
+                                                   Step="1"
+                                                   Value="@GetChannelIntensity(channel.Id)"
+                                                   ValueChanged="(int value) => SetChannelIntensity(channel.Id, value)"
+                                                   Color="Color.Primary"
+                                                   Immediate="true" />
+                                    </MudStack>
+                                }
 
-                                        <MudDivider Class="my-3" />
+                                <MudDivider />
 
-                                        <MudButtonGroup Variant="Variant.Outlined" Size="Size.Small" Class="mb-2">
-                                            <MudButton OnClick="() => AnimateAllChannels()" StartIcon="Icons.Material.Filled.AutoAwesome">
-                                                Animate All
-                                            </MudButton>
-                                            <MudButton OnClick="TurnOffAllChannels" StartIcon="Icons.Material.Filled.PowerOff">
-                                                Turn Off
-                                            </MudButton>
-                                        </MudButtonGroup>
-                                    </ChildContent>
-                                </MudExpansionPanel>
-                            </MudExpansionPanels>
+                                <MudStack Row="true" Spacing="2">
+                                    <MudButton Variant="Variant.Filled"
+                                               Color="Color.Primary"
+                                               OnClick="() => AnimateAllChannels()"
+                                               StartIcon="Icons.Material.Filled.AutoAwesome"
+                                               FullWidth="true">
+                                        Animate
+                                    </MudButton>
+                                    <MudButton Variant="Variant.Outlined"
+                                               Color="Color.Secondary"
+                                               OnClick="TurnOffAllChannels"
+                                               StartIcon="Icons.Material.Filled.PowerOff"
+                                               FullWidth="true">
+                                        Turn Off
+                                    </MudButton>
+                                </MudStack>
+                            </MudStack>
+                        </MudPaper>
 
-                            <!-- Quick Glyph Patterns -->
-                            <MudText Typo="Typo.subtitle2" Class="mb-2">Quick Patterns</MudText>
-                            <div class="d-flex flex-wrap gap-2">
-                                <MudButton Size="Size.Small"
-                                           Variant="Variant.Outlined"
-                                           OnClick="() => ApplyGlyphPattern(GlyphPattern.AllOn)">
+                        <!-- Quick Patterns -->
+                        <MudPaper Class="pa-4" Elevation="2">
+                            <MudText Typo="Typo.h6" Class="mb-3">Quick Patterns</MudText>
+                            <MudStack Spacing="2">
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           OnClick="() => ApplyGlyphPattern(GlyphPattern.AllOn)"
+                                           StartIcon="Icons.Material.Filled.Brightness7"
+                                           FullWidth="true">
                                     All On
                                 </MudButton>
-                                <MudButton Size="Size.Small"
-                                           Variant="Variant.Outlined"
-                                           OnClick="() => ApplyGlyphPattern(GlyphPattern.AllOff)">
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           OnClick="() => ApplyGlyphPattern(GlyphPattern.AllOff)"
+                                           StartIcon="Icons.Material.Filled.Brightness4"
+                                           FullWidth="true">
                                     All Off
                                 </MudButton>
-                                <MudButton Size="Size.Small"
-                                           Variant="Variant.Outlined"
-                                           OnClick="() => ApplyGlyphPattern(GlyphPattern.Wave)">
-                                    Wave
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           OnClick="() => ApplyGlyphPattern(GlyphPattern.Wave)"
+                                           StartIcon="Icons.Material.Filled.WavingHand"
+                                           FullWidth="true">
+                                    Wave Effect
                                 </MudButton>
-                                <MudButton Size="Size.Small"
-                                           Variant="Variant.Outlined"
-                                           OnClick="() => ApplyGlyphPattern(GlyphPattern.Pulse)">
-                                    Pulse
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           OnClick="() => ApplyGlyphPattern(GlyphPattern.Pulse)"
+                                           StartIcon="Icons.Material.Filled.FlashOn"
+                                           FullWidth="true">
+                                    Pulse Effect
                                 </MudButton>
-                            </div>
-                        }
-                    </MudPaper>
+                            </MudStack>
+                        </MudPaper>
                 </MudItem>
             </MudGrid>
         </MudTabPanel>
+        }
 
         <!-- 🔥 Tab 2: Matrix Playground - Phone (3) EXCLUSIVE -->
         @if (IsMatrixAvailable())
@@ -265,25 +299,32 @@
                     <!-- Matrix Visualization -->
                     <MudItem xs="12" lg="8">
                         <MudPaper Class="pa-4" Elevation="2">
-                            <MudText Typo="Typo.h6" Class="mb-4">Matrix Playground - @GetDeviceDisplayName(_selectedDevice)</MudText>
+                            <MudStack Spacing="3">
+                                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                                    <MudText Typo="Typo.h6">Matrix Display - @GetDeviceDisplayName(_selectedDevice)</MudText>
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Info" Variant="Variant.Text">
+                                        25×25 Grid
+                                    </MudChip>
+                                </MudStack>
 
-                            @if (_selectedDevice == GlyphDeviceType.Phone3)
-                            {
-                                <MudAlert Severity="Severity.Success" Class="mb-4">
-                                    <MudText><strong>@GetDeviceDisplayName(_selectedDevice)</strong> is the first Nothing Phone with Matrix technology!</MudText>
-                                    <MudText>Explore the 25×25 LED matrix positioned in the top-right of the device.</MudText>
-                                </MudAlert>
-                            }
-                            else
-                            {
-                                <!-- Future device support -->
-                                <MudAlert Severity="Severity.Info" Class="mb-4">
-                                    <MudText>Matrix display support for <strong>@GetDeviceDisplayName(_selectedDevice)</strong>.</MudText>
-                                </MudAlert>
-                            }
+                                @if (_selectedDevice == GlyphDeviceType.Phone3)
+                                {
+                                    <MudAlert Severity="Severity.Success" Dense="true">
+                                        <MudText Typo="Typo.body2">
+                                            <strong>@GetDeviceDisplayName(_selectedDevice)</strong> is the first Nothing Phone with Matrix technology.
+                                            Click any pixel on the 625-LED matrix to toggle it.
+                                        </MudText>
+                                    </MudAlert>
+                                }
+                                else
+                                {
+                                    <MudAlert Severity="Severity.Info" Dense="true">
+                                        <MudText Typo="Typo.body2">Matrix display support for <strong>@GetDeviceDisplayName(_selectedDevice)</strong>.</MudText>
+                                    </MudAlert>
+                                }
 
-                            <!-- Phone Outline with Matrix in TOP-RIGHT -->
-                            <div style="position: relative; width: 100%; max-width: 400px; margin: 0 auto; aspect-ratio: 0.47;">
+                                <!-- Phone Outline with Matrix in TOP-RIGHT -->
+                                <div style="position: relative; width: 100%; max-width: 400px; margin: 0 auto; aspect-ratio: 0.47;">
 
                                 <!-- Phone Background -->
                                 <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); border-radius: 24px; border: 2px solid #404040;"></div>
@@ -313,88 +354,140 @@
                                         </div>
                                     }
                                 </div>
-                            </div>
+                                </div>
+                            </MudStack>
                         </MudPaper>
                     </MudItem>
 
                     <!-- Matrix Controls -->
                     <MudItem xs="12" lg="4">
-                        <MudPaper Class="pa-4" Elevation="2">
-                            <MudText Typo="Typo.h6" Class="mb-4">Matrix Controls</MudText>
+                        <MudPaper Class="pa-4 mb-4" Elevation="2">
+                            <MudText Typo="Typo.h6" Class="mb-3">Draw Tool</MudText>
 
-                            <MudExpansionPanels Class="mb-4">
-                                <MudExpansionPanel Expanded="true">
-                                    <TitleContent>
-                                        <div style="display: flex; align-items: center;">
-                                            <MudIcon Icon="Icons.Material.Filled.GridOn" Class="mr-3" />
-                                            <MudText>Matrix Controls</MudText>
-                                        </div>
-                                    </TitleContent>
-                                    <ChildContent>
-                                        <!-- Position Controls -->
-                                        <MudGrid Class="mb-3">
-                                            <MudItem xs="6">
-                                                <MudNumericField T="int"
-                                                                 Label="X Position"
-                                                                 @bind-Value="_matrixX"
-                                                                 Min="0"
-                                                                 Max="24"
-                                                                 Variant="Variant.Outlined" />
-                                            </MudItem>
-                                            <MudItem xs="6">
-                                                <MudNumericField T="int"
-                                                                 Label="Y Position"
-                                                                 @bind-Value="_matrixY"
-                                                                 Min="0"
-                                                                 Max="24"
-                                                                 Variant="Variant.Outlined" />
-                                            </MudItem>
-                                        </MudGrid>
+                            <!-- Pixel Position with Visual Indicator -->
+                            <MudStack Spacing="3">
+                                <MudStack Row="true" Spacing="2">
+                                    <MudNumericField T="int"
+                                                     Label="X"
+                                                     @bind-Value="_matrixX"
+                                                     Min="0"
+                                                     Max="24"
+                                                     Variant="Variant.Outlined"
+                                                     Immediate="true"
+                                                     Style="flex: 1;" />
+                                    <MudNumericField T="int"
+                                                     Label="Y"
+                                                     @bind-Value="_matrixY"
+                                                     Min="0"
+                                                     Max="24"
+                                                     Variant="Variant.Outlined"
+                                                     Immediate="true"
+                                                     Style="flex: 1;" />
+                                </MudStack>
 
-                                        <MudText Typo="Typo.body2" Class="mb-1">Intensity</MudText>
-                                        <MudSlider T="int"
-                                                   Min="0"
-                                                   Max="255"
-                                                   Step="1"
-                                                   Value="@_matrixIntensity"
-                                                   ValueChanged="(int value) => _matrixIntensity = value"
-                                                   Class="mb-3" />
+                                <!-- Intensity Slider with Value Display -->
+                                <MudStack>
+                                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                                        <MudText Typo="Typo.body2">Intensity</MudText>
+                                        <MudChip T="string" Size="Size.Small" Variant="Variant.Text" Color="Color.Primary">
+                                            @_matrixIntensity
+                                        </MudChip>
+                                    </MudStack>
+                                    <MudSlider T="int"
+                                               Min="0"
+                                               Max="255"
+                                               Step="1"
+                                               Value="@_matrixIntensity"
+                                               ValueChanged="(int value) => _matrixIntensity = value"
+                                               Color="Color.Primary"
+                                               Immediate="true" />
+                                </MudStack>
 
-                                        <MudButtonGroup Variant="Variant.Outlined" Size="Size.Small" Class="mb-3">
-                                            <MudButton OnClick="SetPixelAtPosition" StartIcon="Icons.Material.Filled.Add">
-                                                Set Pixel
-                                            </MudButton>
-                                            <MudButton OnClick="ClearMatrixPixels" StartIcon="Icons.Material.Filled.Clear">
-                                                Clear All
-                                            </MudButton>
-                                            <MudButton Color="Color.Error" StartIcon="Icons.Material.Filled.BugReport"
-                                                       OnClick="DiagnoseArrayIssues" Size="Size.Small">
-                                                🔍 Diagnose Array
-                                            </MudButton>
-                                            <MudButton Color="Color.Warning" StartIcon="Icons.Material.Filled.Healing"
-                                                       OnClick="ForceReinitializeArrays" Size="Size.Small">
-                                                🚑 Force Reinit
-                                            </MudButton>
-                                        </MudButtonGroup>
-
-                                        <MudText Typo="Typo.caption" Class="mt-2">@_debugArrayInfo</MudText>
-
-                                        <MudText Typo="Typo.subtitle2" Class="mb-2">Quick Patterns:</MudText>
-                                        <MudButtonGroup Variant="Variant.Text" Size="Size.Small">
-                                            <MudButton OnClick="() => DrawPattern(MatrixPattern.Cross)" StartIcon="Icons.Material.Filled.Add">
-                                                Cross
-                                            </MudButton>
-                                            <MudButton OnClick="() => DrawPattern(MatrixPattern.Circle)" StartIcon="Icons.Material.Filled.RadioButtonUnchecked">
-                                                Circle
-                                            </MudButton>
-                                            <MudButton OnClick="() => DrawPattern(MatrixPattern.Square)" StartIcon="Icons.Material.Filled.CropSquare">
-                                                Square
-                                            </MudButton>
-                                        </MudButtonGroup>
-                                    </ChildContent>
-                                </MudExpansionPanel>
-                            </MudExpansionPanels>
+                                <!-- Primary Actions -->
+                                <MudStack Row="true" Spacing="2">
+                                    <MudButton Variant="Variant.Filled"
+                                               Color="Color.Primary"
+                                               OnClick="SetPixelAtPosition"
+                                               StartIcon="Icons.Material.Filled.TouchApp"
+                                               FullWidth="true">
+                                        Set Pixel
+                                    </MudButton>
+                                    <MudButton Variant="Variant.Outlined"
+                                               Color="Color.Secondary"
+                                               OnClick="ClearMatrixPixels"
+                                               StartIcon="Icons.Material.Filled.Clear"
+                                               FullWidth="true">
+                                        Clear
+                                    </MudButton>
+                                </MudStack>
+                            </MudStack>
                         </MudPaper>
+
+                        <!-- Quick Patterns -->
+                        <MudPaper Class="pa-4 mb-4" Elevation="2">
+                            <MudText Typo="Typo.h6" Class="mb-3">Quick Patterns</MudText>
+                            <MudStack Spacing="2">
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           OnClick="() => DrawPattern(MatrixPattern.Cross)"
+                                           StartIcon="Icons.Material.Filled.Add"
+                                           FullWidth="true">
+                                    Cross Pattern
+                                </MudButton>
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           OnClick="() => DrawPattern(MatrixPattern.Circle)"
+                                           StartIcon="Icons.Material.Filled.RadioButtonUnchecked"
+                                           FullWidth="true">
+                                    Circle Pattern
+                                </MudButton>
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           OnClick="() => DrawPattern(MatrixPattern.Square)"
+                                           StartIcon="Icons.Material.Filled.CropSquare"
+                                           FullWidth="true">
+                                    Square Pattern
+                                </MudButton>
+                            </MudStack>
+                        </MudPaper>
+
+                        <!-- Advanced Tools (Collapsed by Default) -->
+                        <MudExpansionPanels Elevation="2">
+                            <MudExpansionPanel>
+                                <TitleContent>
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                        <MudIcon Icon="Icons.Material.Filled.Settings" Size="Size.Small" />
+                                        <MudText Typo="Typo.body2">Advanced Tools</MudText>
+                                    </MudStack>
+                                </TitleContent>
+                                <ChildContent>
+                                    <MudStack Spacing="2" Class="pa-2">
+                                        <MudButton Variant="Variant.Text"
+                                                   Color="Color.Error"
+                                                   OnClick="DiagnoseArrayIssues"
+                                                   StartIcon="Icons.Material.Filled.BugReport"
+                                                   Size="Size.Small"
+                                                   FullWidth="true">
+                                            Diagnose Array
+                                        </MudButton>
+                                        <MudButton Variant="Variant.Text"
+                                                   Color="Color.Warning"
+                                                   OnClick="ForceReinitializeArrays"
+                                                   StartIcon="Icons.Material.Filled.Healing"
+                                                   Size="Size.Small"
+                                                   FullWidth="true">
+                                            Force Reinitialize
+                                        </MudButton>
+                                        @if (!string.IsNullOrEmpty(_debugArrayInfo))
+                                        {
+                                            <MudAlert Severity="Severity.Info" Dense="true" Class="mt-2">
+                                                <MudText Typo="Typo.caption">@_debugArrayInfo</MudText>
+                                            </MudAlert>
+                                        }
+                                    </MudStack>
+                                </ChildContent>
+                            </MudExpansionPanel>
+                        </MudExpansionPanels>
                     </MudItem>
                 </MudGrid>
             </MudTabPanel>
@@ -657,6 +750,7 @@
     private int _debugPixelCount = 0;
     private string _debugArrayInfo = "";
     private GlyphDeviceType _selectedDevice = GlyphDeviceType.Phone3;
+    private bool _phone1AdvancedMode = false;
     private readonly Dictionary<string, int> _channelIntensities = [];
     private readonly HashSet<string> _activeChannels = [];
     private readonly GlyphPixel[] _matrixPixels = new GlyphPixel[IGlyphMatrixService.TotalPixels];
@@ -670,17 +764,18 @@
     {
         return @"
             position: absolute;
-            top: 15%;
-            right: 10%;
-            width: 35%;
-            height: 35%;
+            top: 10%;
+            right: 8%;
+            width: 40%;
+            aspect-ratio: 1;
             display: flex;
             flex-direction: column;
             gap: 1px;
             opacity: 0.9;
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            border-radius: 4px;
-            padding: 2px;
+            border: 2px solid rgba(0, 255, 136, 0.5);
+            border-radius: 8px;
+            padding: 4px;
+            background: rgba(26, 26, 26, 0.8);
         ";
     }
 
@@ -700,14 +795,9 @@
         return HasMatrix() ? "Combined Preview" : "Glyph Preview"; // Future phones might have both
     }
 
-    private string GetGlyphTabText()
-    {
-        return HasGlyphs() ? "Glyph Designer" : "Glyph Designer (N/A)";
-    }
-
     private string GetGlyphDesignTitle()
     {
-        return HasGlyphs() ? $"{GetDeviceDisplayName(_selectedDevice)} Glyph Design" : "LED Glyph Design";
+        return $"{GetDeviceDisplayName(_selectedDevice)} Glyph Design";
     }
 
     // 🔄 Tab event handlers
@@ -884,7 +974,7 @@
                 case GlyphPattern.AllOn:
                     foreach (var channel in channels)
                     {
-                        await SetChannelIntensity(channel, 255);
+                        await SetChannelIntensity(channel.Id, 255);
                     }
                     break;
 
@@ -895,9 +985,9 @@
                 case GlyphPattern.Wave:
                     foreach (var channel in channels)
                     {
-                        await SetChannelIntensity(channel, 255);
+                        await SetChannelIntensity(channel.Id, 255);
                         await Task.Delay(200);
-                        await SetChannelIntensity(channel, 0);
+                        await SetChannelIntensity(channel.Id, 0);
                     }
                     break;
 
@@ -1005,37 +1095,37 @@
     private string GetPhone2aChannelCStyle() =>
         "position: absolute; bottom: 20%; right: 12%; width: 6%; height: 6%; z-index: 20;";  // Small red square (bottom right)
 
-    // 💫 LED Strip Visual Styling Engine - MAXIMUM VISIBILITY
+    // 💫 LED Strip Visual Styling Engine - MAXIMUM VISIBILITY WITH ENHANCED BORDERS
     private string GetLEDStripStyle(string channel, string stripType)
     {
         var intensity = GetChannelIntensity(channel);
         var isActive = intensity > 0;
 
-        var baseOpacity = isActive ? 1.0 : 0.8; // Much brighter when off
+        var baseOpacity = isActive ? 1.0 : 0.9; // Enhanced inactive opacity
         var glowOpacity = isActive ? 0.8 : 0;
 
         var baseColor = isActive ? "0, 255, 136" : "200, 200, 200"; // Bright white when off, Nothing green when on
-        var borderColor = isActive ? "0, 255, 136" : "150, 150, 150";
+        var borderColor = isActive ? "0, 255, 136" : "180, 180, 180"; // Brighter inactive border
 
         return stripType switch
         {
-            "ring" => $@"width: 100%; height: 100%; border: 3px solid rgba({borderColor}, {baseOpacity}); border-radius: 20px; background: rgba({baseColor}, {(isActive ? 0.3 : 0.1)}); box-shadow: {(isActive ? $"0 0 25px rgba({baseColor}, {glowOpacity}), inset 0 0 15px rgba({baseColor}, {glowOpacity * 0.6})" : $"0 0 8px rgba({borderColor}, 0.4)")}; cursor: pointer; transition: all 0.3s ease;",
+            "ring" => $@"width: 100%; height: 100%; border: 4px solid rgba({borderColor}, {baseOpacity}); border-radius: 20px; background: rgba({baseColor}, {(isActive ? 0.3 : 0.12)}); box-shadow: {(isActive ? $"0 0 25px rgba({baseColor}, {glowOpacity}), inset 0 0 15px rgba({baseColor}, {glowOpacity * 0.6})" : $"0 0 10px rgba({borderColor}, 0.5)")}; cursor: pointer; transition: all 0.3s ease;",
 
-            "vertical" => $@"width: 100%; height: 100%; background: rgba({baseColor}, {(isActive ? 0.4 : 0.15)}); border-radius: 8px; border: 2px solid rgba({borderColor}, {baseOpacity}); box-shadow: {(isActive ? $"0 0 20px rgba({baseColor}, {glowOpacity}), inset 0 0 10px rgba({baseColor}, {glowOpacity * 0.5})" : $"0 0 5px rgba({borderColor}, 0.4)")}; cursor: pointer; transition: all 0.3s ease;",
+            "vertical" => $@"width: 100%; height: 100%; background: rgba({baseColor}, {(isActive ? 0.4 : 0.18)}); border-radius: 8px; border: 3px solid rgba({borderColor}, {baseOpacity}); box-shadow: {(isActive ? $"0 0 20px rgba({baseColor}, {glowOpacity}), inset 0 0 10px rgba({baseColor}, {glowOpacity * 0.5})" : $"0 0 6px rgba({borderColor}, 0.5)")}; cursor: pointer; transition: all 0.3s ease;",
 
-            "horizontal" => $@"width: 100%; height: 100%; background: rgba({baseColor}, {(isActive ? 0.4 : 0.15)}); border-radius: 6px; border: 2px solid rgba({borderColor}, {baseOpacity}); box-shadow: {(isActive ? $"0 0 18px rgba({baseColor}, {glowOpacity}), inset 0 0 8px rgba({baseColor}, {glowOpacity * 0.4})" : $"0 0 4px rgba({borderColor}, 0.4)")}; cursor: pointer; transition: all 0.3s ease;",
+            "horizontal" => $@"width: 100%; height: 100%; background: rgba({baseColor}, {(isActive ? 0.4 : 0.18)}); border-radius: 6px; border: 3px solid rgba({borderColor}, {baseOpacity}); box-shadow: {(isActive ? $"0 0 18px rgba({baseColor}, {glowOpacity}), inset 0 0 8px rgba({baseColor}, {glowOpacity * 0.4})" : $"0 0 5px rgba({borderColor}, 0.5)")}; cursor: pointer; transition: all 0.3s ease;",
 
-            "diagonal" => $@"width: 100%; height: 100%; background: rgba({baseColor}, {(isActive ? 0.4 : 0.15)}); border-radius: 8px; border: 2px solid rgba({borderColor}, {baseOpacity}); box-shadow: {(isActive ? $"0 0 15px rgba({baseColor}, {glowOpacity})" : $"0 0 4px rgba({borderColor}, 0.4)")}; cursor: pointer; transition: all 0.3s ease;",
+            "diagonal" => $@"width: 100%; height: 100%; background: rgba({baseColor}, {(isActive ? 0.4 : 0.18)}); border-radius: 8px; border: 3px solid rgba({borderColor}, {baseOpacity}); box-shadow: {(isActive ? $"0 0 15px rgba({baseColor}, {glowOpacity})" : $"0 0 5px rgba({borderColor}, 0.5)")}; cursor: pointer; transition: all 0.3s ease;",
 
-            "exclamation" => $@"width: 100%; height: 100%; background: linear-gradient(to bottom, rgba({baseColor}, {baseOpacity * 0.4}) 0%, rgba({baseColor}, {baseOpacity * 0.4}) 75%, transparent 76%, transparent 85%, rgba({baseColor}, {baseOpacity * 0.4}) 86%, rgba({baseColor}, {baseOpacity * 0.4}) 100%); border-radius: 6px; border: 2px solid rgba({borderColor}, {baseOpacity}); box-shadow: {(isActive ? $"0 0 12px rgba({baseColor}, {glowOpacity})" : $"0 0 3px rgba({borderColor}, 0.4)")}; cursor: pointer; transition: all 0.3s ease;",
+            "exclamation" => $@"width: 100%; height: 100%; background: linear-gradient(to bottom, rgba({baseColor}, {baseOpacity * 0.4}) 0%, rgba({baseColor}, {baseOpacity * 0.4}) 75%, transparent 76%, transparent 85%, rgba({baseColor}, {baseOpacity * 0.4}) 86%, rgba({baseColor}, {baseOpacity * 0.4}) 100%); border-radius: 6px; border: 3px solid rgba({borderColor}, {baseOpacity}); box-shadow: {(isActive ? $"0 0 12px rgba({baseColor}, {glowOpacity})" : $"0 0 4px rgba({borderColor}, 0.5)")}; cursor: pointer; transition: all 0.3s ease;",
 
-            "dot" => $@"width: 100%; height: 100%; background: radial-gradient(circle, rgba({baseColor}, {baseOpacity * 0.4}) 0%, rgba({baseColor}, {baseOpacity * 0.3}) 70%, transparent 71%); border-radius: 50%; border: 2px solid rgba({borderColor}, {baseOpacity}); box-shadow: {(isActive ? $"0 0 15px rgba({baseColor}, {glowOpacity})" : $"0 0 3px rgba({borderColor}, 0.4)")}; cursor: pointer; transition: all 0.3s ease;",
+            "dot" => $@"width: 100%; height: 100%; background: radial-gradient(circle, rgba({baseColor}, {baseOpacity * 0.4}) 0%, rgba({baseColor}, {baseOpacity * 0.3}) 70%, transparent 71%); border-radius: 50%; border: 3px solid rgba({borderColor}, {baseOpacity}); box-shadow: {(isActive ? $"0 0 15px rgba({baseColor}, {glowOpacity})" : $"0 0 4px rgba({borderColor}, 0.5)")}; cursor: pointer; transition: all 0.3s ease;",
 
-            "circle" => $@"width: 100%; height: 100%; border: 4px solid rgba({borderColor}, {baseOpacity}); border-radius: 50%; background: rgba({baseColor}, {(isActive ? 0.2 : 0.05)}); box-shadow: {(isActive ? $"0 0 30px rgba({baseColor}, {glowOpacity}), inset 0 0 20px rgba({baseColor}, {glowOpacity * 0.4})" : $"0 0 8px rgba({borderColor}, 0.3)")}; cursor: pointer; transition: all 0.3s ease;",
+            "circle" => $@"width: 100%; height: 100%; border: 5px solid rgba({borderColor}, {baseOpacity}); border-radius: 50%; background: rgba({baseColor}, {(isActive ? 0.2 : 0.08)}); box-shadow: {(isActive ? $"0 0 30px rgba({baseColor}, {glowOpacity}), inset 0 0 20px rgba({baseColor}, {glowOpacity * 0.4})" : $"0 0 10px rgba({borderColor}, 0.4)")}; cursor: pointer; transition: all 0.3s ease;",
 
-            "square" => $@"width: 100%; height: 100%; background: rgba({baseColor}, {(isActive ? 0.4 : 0.15)}); border-radius: 4px; border: 3px solid rgba({borderColor}, {baseOpacity}); box-shadow: {(isActive ? $"0 0 20px rgba({baseColor}, {glowOpacity}), inset 0 0 10px rgba({baseColor}, {glowOpacity * 0.5})" : $"0 0 5px rgba({borderColor}, 0.4)")}; cursor: pointer; transition: all 0.3s ease;",
+            "square" => $@"width: 100%; height: 100%; background: rgba({baseColor}, {(isActive ? 0.4 : 0.18)}); border-radius: 4px; border: 4px solid rgba({borderColor}, {baseOpacity}); box-shadow: {(isActive ? $"0 0 20px rgba({baseColor}, {glowOpacity}), inset 0 0 10px rgba({baseColor}, {glowOpacity * 0.5})" : $"0 0 6px rgba({borderColor}, 0.5)")}; cursor: pointer; transition: all 0.3s ease;",
 
-            _ => $@"width: 100%; height: 100%; background: rgba({baseColor}, {(isActive ? 0.4 : 0.15)}); border-radius: 6px; border: 2px solid rgba({borderColor}, {baseOpacity}); cursor: pointer; transition: all 0.3s ease;"
+            _ => $@"width: 100%; height: 100%; background: rgba({baseColor}, {(isActive ? 0.4 : 0.18)}); border-radius: 6px; border: 3px solid rgba({borderColor}, {baseOpacity}); cursor: pointer; transition: all 0.3s ease;"
         };
     }
 
@@ -1123,7 +1213,7 @@
         var channels = GetVisibleChannels();
         foreach (var channel in channels)
         {
-            _channelIntensities[channel] = 0;
+            _channelIntensities[channel.Id] = 0;
         }
     }
 
@@ -1254,14 +1344,35 @@
         _ => device.ToString()
     };
 
-    private List<string> GetVisibleChannels() => _selectedDevice switch
+    private List<GlyphChannelInfo> GetVisibleChannels()
     {
-        GlyphDeviceType.Phone1 => ["A", "B", "C", "D"],
-        GlyphDeviceType.Phone2 => ["A", "B", "C", "D", "E"],
-        GlyphDeviceType.Phone2a or GlyphDeviceType.Phone2aPlus => ["A", "B", "C"],
-        GlyphDeviceType.Phone3 => ["A", "B", "C"],
-        _ => ["A", "B", "C"]
-    };
+        var useAdvanced = _selectedDevice == GlyphDeviceType.Phone1 && _phone1AdvancedMode;
+        return GlyphChannelInfoProvider.GetChannels(_selectedDevice, useAdvanced);
+    }
+
+    private List<string> GetVisibleChannelIds() => GetVisibleChannels().Select(c => c.Id).ToList();
+
+    private async Task OnAdvancedModeChanged(bool isAdvanced)
+    {
+        _phone1AdvancedMode = isAdvanced;
+
+        // Clear active channels and intensities when switching modes
+        _activeChannels.Clear();
+        _channelIntensities.Clear();
+
+        // Reinitialize channel mappings for the new mode
+        InitializeChannelMappings();
+
+        // Turn off all glyphs
+        await TurnOffAllChannels();
+
+        await InvokeAsync(StateHasChanged);
+
+        Snackbar.Add(
+            $"Switched to {(isAdvanced ? "Advanced" : "Basic")} mode",
+            Severity.Info
+        );
+    }
 
     // Channel Management
     private async Task ToggleChannel(string channel)
@@ -1343,48 +1454,11 @@
 
     private int GetChannelIntensity(string channel) => _channelIntensities.GetValueOrDefault(channel, 0);
 
-    private int[] GetChannelNumbers(string channel) => _selectedDevice switch
+    private int[] GetChannelNumbers(string channelId)
     {
-        GlyphDeviceType.Phone1 => channel switch
-        {
-            "A" => GlyphChannels.Phone1.A,
-            "B" => GlyphChannels.Phone1.B,
-            "C" => GlyphChannels.Phone1.C,
-            "D" => GlyphChannels.Phone1.D,
-            _ => []
-        },
-        GlyphDeviceType.Phone2 => channel switch
-        {
-            "A" => GlyphChannels.Phone2.A,
-            "B" => GlyphChannels.Phone2.B,
-            "C" => GlyphChannels.Phone2.C,
-            "D" => GlyphChannels.Phone2.D,
-            "E" => GlyphChannels.Phone2.E,
-            _ => []
-        },
-        GlyphDeviceType.Phone2a => channel switch
-        {
-            "A" => GlyphChannels.Phone2a.A,
-            "B" => GlyphChannels.Phone2a.B,
-            "C" => GlyphChannels.Phone2a.C,
-            _ => []
-        },
-        GlyphDeviceType.Phone2aPlus => channel switch
-        {
-            "A" => GlyphChannels.Phone2aPlus.A,
-            "B" => GlyphChannels.Phone2aPlus.B,
-            "C" => GlyphChannels.Phone2aPlus.C,
-            _ => []
-        },
-        GlyphDeviceType.Phone3 => channel switch
-        {
-            "A" => GlyphChannels.Phone3.A,
-            "B" => GlyphChannels.Phone3.B,
-            "C" => GlyphChannels.Phone3.C,
-            _ => []
-        },
-        _ => []
-    };
+        var channelInfo = GetVisibleChannels().FirstOrDefault(c => c.Id == channelId);
+        return channelInfo?.Zones ?? [];
+    }
 
     private async Task AnimateAllChannels(CancellationToken cancellationToken = default)
     {
@@ -1395,10 +1469,10 @@
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var channelNumbers = GetChannelNumbers(channel);
+                var channelNumbers = GetChannelNumbers(channel.Id);
                 await InterfaceService.AnimateChannelsAsync(channelNumbers, AnimationDurationMs, AnimationCycles);
-                _activeChannels.Add(channel);
-                _channelIntensities[channel] = 255;
+                _activeChannels.Add(channel.Id);
+                _channelIntensities[channel.Id] = 255;
             }
 
             Snackbar.Add("Animation started for all channels", Severity.Success);
@@ -1506,16 +1580,19 @@
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var pixels = pattern switch
-        {
-            MatrixPattern.Cross => GenerateCrossPattern(12, 12, 8),
-            MatrixPattern.Circle => GenerateCirclePattern(12, 12, 6),
-            MatrixPattern.Square => GenerateSquarePattern(8, 8, 8),
-            _ => []
-        };
-
         try
         {
+            // Clear existing pixels first to prevent state issues
+            await ClearMatrixPixels();
+
+            var pixels = pattern switch
+            {
+                MatrixPattern.Cross => GenerateCrossPattern(12, 12, 8),
+                MatrixPattern.Circle => GenerateCirclePattern(12, 12, 6),
+                MatrixPattern.Square => GenerateSquarePattern(12, 12, 8),
+                _ => []
+            };
+
             await MatrixService.SetPixelsAsync(pixels);
 
             foreach (var pixel in pixels)
@@ -1589,18 +1666,18 @@
         return pixels;
     }
 
-    private IEnumerable<GlyphPixel> GenerateSquarePattern(int startX, int startY, int size)
+    private IEnumerable<GlyphPixel> GenerateSquarePattern(int centerX, int centerY, int size)
     {
         var pixels = new List<GlyphPixel>();
+        var halfSize = size / 2;
+        var startX = centerX - halfSize;
+        var startY = centerY - halfSize;
 
-        for (int x = startX; x < startX + size && x < IGlyphMatrixService.MatrixWidth; x++)
+        for (int x = Math.Max(0, startX); x < Math.Min(IGlyphMatrixService.MatrixWidth, startX + size); x++)
         {
-            for (int y = startY; y < startY + size && y < IGlyphMatrixService.MatrixHeight; y++)
+            for (int y = Math.Max(0, startY); y < Math.Min(IGlyphMatrixService.MatrixHeight, startY + size); y++)
             {
-                if (x >= 0 && y >= 0)
-                {
-                    pixels.Add(new GlyphPixel(x, y, 255));
-                }
+                pixels.Add(new GlyphPixel(x, y, 255));
             }
         }
 
