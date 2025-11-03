@@ -51,7 +51,9 @@
         {
             <MudTabPanel Text="Glyph Designer"
                          Icon="@Icons.Material.Filled.LightMode"
-                         ID=@("glyph-designer")>
+                         ID=@("glyph-designer")
+                         BadgeData="1"
+                         Style="order: 1;">
 
             <MudGrid Class="mt-4">
                 <!-- Glyph Visualization Area -->
@@ -78,16 +80,16 @@
                                         </div>
                                     </MudTooltip>
 
-                                    <!-- Channel B: Diagonal Line (top right) -->
-                                    <MudTooltip Text="Diagonal - 1 LED">
+                                    <!-- Channel B: Camera Bottom -->
+                                    <MudTooltip Text="Camera Bottom - 1 LED">
                                         <div style="@GetPhone2ChannelBStyle()" @onclick="@(() => ToggleChannel("B"))">
                                             <div style="@GetLEDStripStyle("B", "diagonal")"></div>
                                             <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; color: rgba(255,255,255,0.7); text-shadow: 0 0 4px rgba(0,0,0,0.8);">B</div>
                                         </div>
                                     </MudTooltip>
 
-                                    <!-- Channel C: Large Center Circle -->
-                                    <MudTooltip Text="Circle - 24 LEDs">
+                                    <!-- Channel C: Diagonal + Battery Circle -->
+                                    <MudTooltip Text="Diagonal + Battery - 24 LEDs">
                                         <div style="@GetPhone2ChannelCStyle()" @onclick="@(() => ToggleChannel("C"))">
                                             <div style="@GetLEDStripStyle("C", "circle")"></div>
                                             <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; color: rgba(255,255,255,0.7); text-shadow: 0 0 4px rgba(0,0,0,0.8);">C</div>
@@ -148,24 +150,24 @@
                                 else
                                 {
                                     <!-- Nothing Phone (2a) variants - CORRECTED AUTHENTIC LAYOUT -->
-                                    <!-- Channel A: Camera Outline (top area) -->
-                                    <MudTooltip Text="Camera - 1 LED">
+                                    <!-- Channel A: Bottom Left -->
+                                    <MudTooltip Text="Bottom Left - 1 LED">
                                         <div style="@GetPhone2aChannelAStyle()" @onclick="@(() => ToggleChannel("A"))">
                                             <div style="@GetLEDStripStyle("A", "ring")"></div>
                                             <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; color: rgba(255,255,255,0.7); text-shadow: 0 0 4px rgba(0,0,0,0.8);">A</div>
                                         </div>
                                     </MudTooltip>
 
-                                    <!-- Channel B: Vertical Lines (right side) -->
-                                    <MudTooltip Text="Vertical - 1 LED">
+                                    <!-- Channel B: Middle Right -->
+                                    <MudTooltip Text="Middle Right - 1 LED">
                                         <div style="@GetPhone2aChannelBStyle()" @onclick="@(() => ToggleChannel("B"))">
                                             <div style="@GetLEDStripStyle("B", "vertical")"></div>
                                             <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; color: rgba(255,255,255,0.7); text-shadow: 0 0 4px rgba(0,0,0,0.8);">B</div>
                                         </div>
                                     </MudTooltip>
 
-                                    <!-- Channel C: Small Red Square (bottom right) -->
-                                    <MudTooltip Text="Battery - 24 LEDs">
+                                    <!-- Channel C: Top Left -->
+                                    <MudTooltip Text="Top Left - 24 LEDs">
                                         <div style="@GetPhone2aChannelCStyle()" @onclick="@(() => ToggleChannel("C"))">
                                             <div style="@GetLEDStripStyle("C", "square")"></div>
                                             <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; color: rgba(255,255,255,0.7); text-shadow: 0 0 4px rgba(0,0,0,0.8);">C</div>
@@ -283,17 +285,125 @@
                                 </MudButton>
                             </MudStack>
                         </MudPaper>
+
+                        <!-- Sequence Builder -->
+                        <MudPaper Class="pa-4 mt-4" Elevation="2">
+                            <MudStack Spacing="3">
+                                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                                    <MudText Typo="Typo.h6">Sequence Builder</MudText>
+                                    <MudTooltip Text="Create timed sequences by adding keyframes">
+                                        <MudIcon Icon="@Icons.Material.Filled.Info" Size="Size.Small" Color="Color.Info" />
+                                    </MudTooltip>
+                                </MudStack>
+
+                                <!-- Sequence Name -->
+                                <MudTextField T="string"
+                                              Label="Sequence Name"
+                                              Value="@_currentSequence.Name"
+                                              ValueChanged="(string value) => _currentSequence.Name = value"
+                                              Variant="Variant.Outlined"
+                                              Margin="Margin.Dense" />
+
+                                <!-- Duration Control -->
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                    <MudText Typo="Typo.body2" Style="min-width: 80px;">Duration:</MudText>
+                                    <MudSlider T="double"
+                                               Min="1"
+                                               Max="30"
+                                               Step="0.5"
+                                               Value="@_currentSequence.DurationInSeconds"
+                                               ValueChanged="(double value) => _currentSequence.DurationInSeconds = value"
+                                               Color="Color.Primary" />
+                                    <MudText Typo="Typo.body2" Style="min-width: 40px;">@_currentSequence.DurationInSeconds.ToString("F1")s</MudText>
+                                </MudStack>
+
+                                <!-- Playback Controls -->
+                                <MudStack Row="true" Spacing="2">
+                                    <MudButton Variant="Variant.Filled"
+                                               Color="@(_isSequencePlaying ? Color.Secondary : Color.Primary)"
+                                               OnClick="ToggleSequencePlayback"
+                                               StartIcon="@(_isSequencePlaying ? Icons.Material.Filled.Stop : Icons.Material.Filled.PlayArrow)"
+                                               FullWidth="true">
+                                        @(_isSequencePlaying ? "Stop" : "Play")
+                                    </MudButton>
+                                    <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                                   Color="Color.Success"
+                                                   OnClick="AddKeyframeAtCurrentTime"
+                                                   Variant="Variant.Filled" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.Clear"
+                                                   Color="Color.Error"
+                                                   OnClick="ClearSequence"
+                                                   Variant="Variant.Outlined" />
+                                </MudStack>
+
+                                <!-- Timeline Visualization -->
+                                <MudPaper Class="pa-2" Style="background: rgba(0,0,0,0.1);">
+                                    <MudStack Spacing="2">
+                                        <!-- Time ruler -->
+                                        <div style="position: relative; height: 30px; background: rgba(0,0,0,0.2); border-radius: 4px;">
+                                            @for (int i = 0; i <= (int)_currentSequence.DurationInSeconds; i++)
+                                            {
+                                                var position = (i / _currentSequence.DurationInSeconds) * 100;
+                                                <div style="position: absolute; left: @(position)%; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.3);"></div>
+                                                <div style="position: absolute; left: @(position)%; top: 5px; font-size: 10px; color: rgba(255,255,255,0.7);">@(i)s</div>
+                                            }
+
+                                            <!-- Current time indicator -->
+                                            @if (_isSequencePlaying)
+                                            {
+                                                var currentPosition = (_sequenceCurrentTime / _currentSequence.DurationInSeconds) * 100;
+                                                <div style="position: absolute; left: @(currentPosition)%; top: 0; bottom: 0; width: 2px; background: #00ff88;"></div>
+                                            }
+
+                                            <!-- Keyframe markers -->
+                                            @foreach (var keyframe in _currentSequence.Keyframes)
+                                            {
+                                                var kfPosition = (keyframe.TimeInSeconds / _currentSequence.DurationInSeconds) * 100;
+                                                <MudTooltip Text="@($"Keyframe at {keyframe.TimeInSeconds:F2}s - {keyframe.ChannelIntensities.Count} channels")">
+                                                    <div @onclick="() => SelectKeyframe(keyframe)"
+                                                         style="position: absolute; left: calc(@(kfPosition)% - 6px); top: 50%; transform: translateY(-50%); width: 12px; height: 12px; background: #0099ff; border: 2px solid white; border-radius: 50%; cursor: pointer;"></div>
+                                                </MudTooltip>
+                                            }
+                                        </div>
+
+                                        <!-- Keyframe count -->
+                                        <MudText Typo="Typo.caption" Align="Align.Center" Color="Color.Secondary">
+                                            @_currentSequence.Keyframes.Count keyframe(s)
+                                        </MudText>
+                                    </MudStack>
+                                </MudPaper>
+
+                                <!-- Selected Keyframe Info -->
+                                @if (_selectedKeyframe != null)
+                                {
+                                    <MudAlert Severity="Severity.Info" Dense="true">
+                                        <MudStack Row="true" Justify="Justify.SpaceBetween">
+                                            <MudText Typo="Typo.body2">Keyframe at @_selectedKeyframe.TimeInSeconds.ToString("F2")s</MudText>
+                                            <MudButton Size="Size.Small"
+                                                       Variant="Variant.Text"
+                                                       Color="Color.Error"
+                                                       OnClick="RemoveSelectedKeyframe"
+                                                       StartIcon="@Icons.Material.Filled.Delete">
+                                                Remove
+                                            </MudButton>
+                                        </MudStack>
+                                    </MudAlert>
+                                }
+                            </MudStack>
+                        </MudPaper>
                 </MudItem>
             </MudGrid>
         </MudTabPanel>
         }
 
-        <!-- 🔥 Tab 2: Matrix Playground - Phone (3) EXCLUSIVE -->
+        <!-- 🔥 Tab 2: Matrix Designer - Phone (3) EXCLUSIVE -->
         @if (IsMatrixAvailable())
         {
-            <MudTabPanel Text="Matrix Playground"
+            <MudTabPanel Text="Matrix Designer"
                          Icon="@Icons.Material.Filled.GridView"
-                         ID=@("matrix-playground")>
+                         ID=@("matrix-designer")
+                         BadgeData="2"
+                         Style="order: 2;">
 
                 <MudGrid Class="mt-4">
                     <!-- Matrix Visualization -->
@@ -493,10 +603,12 @@
             </MudTabPanel>
         }
 
-        <!-- 🎬 Tab 3: Combined Preview -->
+        <!-- 🎬 Tab 3: Preview (always last) -->
         <MudTabPanel Text="@GetPreviewTabText()"
                      Icon="@Icons.Material.Filled.Preview"
-                     ID=@("combined-preview")>
+                     ID=@("preview")
+                     BadgeData="3"
+                     Style="order: 3;">
 
             <MudGrid Class="mt-4">
                 <!-- Combined Visualization -->
@@ -759,6 +871,12 @@
     private int _matrixIntensity = 255;
     private DateTime _lastUpdate = DateTime.Now;
 
+    // Sequence Builder state
+    private GlyphSequence _currentSequence = new() { Name = "Untitled Sequence", DurationInSeconds = 5.0 };
+    private SequenceKeyframe? _selectedKeyframe;
+    private double _sequenceCurrentTime = 0;
+    private System.Threading.Timer? _sequenceTimer;
+
     // 🎯 KOWALSKI'S MATRIX POSITIONING MAGIC
     private string GetMatrixContainerStyle()
     {
@@ -828,12 +946,12 @@
             _channelIntensities[channel] = 0;
         }
 
-        // If switching to Phone (3) and on Glyph Designer tab, switch to Matrix tab
+        // If switching to Phone (3) and on Glyph Designer tab, switch to Matrix Designer
         if (_selectedDevice == GlyphDeviceType.Phone3 && _activeTabIndex == 0)
         {
-            _activeTabIndex = 1; // Switch to Matrix Playground
+            _activeTabIndex = 1; // Switch to Matrix Designer
         }
-        // If switching away from Phone (3) and on Matrix tab, switch to Glyph Designer
+        // If switching away from Phone (3) and on Matrix Designer tab, switch to Glyph Designer
         else if (_selectedDevice != GlyphDeviceType.Phone3 && _activeTabIndex == 1)
         {
             _activeTabIndex = 0; // Switch to Glyph Designer
@@ -1866,4 +1984,130 @@
             Snackbar.Add($"Failed to toggle pixel ({x}, {y})", Severity.Error);
         }
     }
+
+    #region Sequence Builder Methods
+
+    private void AddKeyframeAtCurrentTime()
+    {
+        try
+        {
+            // Capture current channel states
+            var channelStates = new Dictionary<string, int>(_channelIntensities);
+
+            if (channelStates.Count == 0)
+            {
+                Snackbar.Add("No active channels to save in keyframe", Severity.Warning);
+                return;
+            }
+
+            // Add keyframe at current time (or 0 if not playing)
+            var time = _isSequencePlaying ? _sequenceCurrentTime : 0;
+            _currentSequence.AddKeyframe(time, channelStates);
+
+            Snackbar.Add($"Keyframe added at {time:F2}s with {channelStates.Count} channel(s)", Severity.Success);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error adding keyframe: {ex.Message}");
+            Snackbar.Add("Failed to add keyframe", Severity.Error);
+        }
+    }
+
+    private void ClearSequence()
+    {
+        _currentSequence.Keyframes.Clear();
+        _selectedKeyframe = null;
+        Snackbar.Add("Sequence cleared", Severity.Info);
+        StateHasChanged();
+    }
+
+    private void SelectKeyframe(SequenceKeyframe keyframe)
+    {
+        _selectedKeyframe = keyframe;
+        StateHasChanged();
+    }
+
+    private void RemoveSelectedKeyframe()
+    {
+        if (_selectedKeyframe != null)
+        {
+            _currentSequence.RemoveKeyframe(_selectedKeyframe.TimeInSeconds);
+            Snackbar.Add($"Keyframe at {_selectedKeyframe.TimeInSeconds:F2}s removed", Severity.Info);
+            _selectedKeyframe = null;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ToggleSequencePlayback()
+    {
+        if (_isSequencePlaying)
+        {
+            StopSequencePlayback();
+        }
+        else
+        {
+            await StartSequencePlayback();
+        }
+    }
+
+    private async Task StartSequencePlayback()
+    {
+        if (_currentSequence.Keyframes.Count < 2)
+        {
+            Snackbar.Add("Add at least 2 keyframes to play sequence", Severity.Warning);
+            return;
+        }
+
+        _isSequencePlaying = true;
+        _sequenceCurrentTime = 0;
+
+        // Start timer for smooth playback
+        _sequenceTimer = new System.Threading.Timer(async _ =>
+        {
+            _sequenceCurrentTime += 0.05; // Update every 50ms
+
+            if (_sequenceCurrentTime >= _currentSequence.DurationInSeconds)
+            {
+                if (_currentSequence.Loop)
+                {
+                    _sequenceCurrentTime = 0;
+                }
+                else
+                {
+                    await InvokeAsync(() => StopSequencePlayback());
+                    return;
+                }
+            }
+
+            // Apply channel states at current time
+            var state = _currentSequence.GetStateAtTime(_sequenceCurrentTime);
+            if (state != null)
+            {
+                await InvokeAsync(async () =>
+                {
+                    foreach (var kvp in state)
+                    {
+                        await SetChannelIntensity(kvp.Key, kvp.Value);
+                    }
+                    StateHasChanged();
+                });
+            }
+        }, null, 0, 50); // Update every 50ms
+
+        Snackbar.Add("Sequence playback started", Severity.Success);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void StopSequencePlayback()
+    {
+        _isSequencePlaying = false;
+        _sequenceTimer?.Dispose();
+        _sequenceTimer = null;
+        _sequenceCurrentTime = 0;
+        Snackbar.Add("Sequence playback stopped", Severity.Info);
+        StateHasChanged();
+    }
+
+    #endregion
 }
