@@ -1,0 +1,62 @@
+name: CodeQL Security Scanning
+
+on:
+  push:
+    branches: [ master, dev ]
+  pull_request:
+    branches: [ master, dev ]
+  schedule:
+    - cron: '0 8 * * 1'  # Weekly on Monday at 8:00 UTC
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    name: CodeQL Analysis
+    runs-on: windows-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'csharp' ]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET 10.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        dotnet-quality: 'preview'
+
+    - name: Setup Android workload
+      run: dotnet workload install android
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        queries: security-and-quality
+
+    - name: Restore dependencies (non-MAUI projects)
+      run: |
+        dotnet restore CheapGlyphForge.Core/CheapGlyphForge.Core.csproj
+        dotnet restore CheapGlyphForge.GlyphMatrix.Binding/CheapGlyphForge.GlyphMatrix.Binding.csproj
+        dotnet restore CheapGlyphForge.GlyphInterface.Binding/CheapGlyphForge.GlyphInterface.Binding.csproj
+
+    - name: Build for CodeQL (non-MAUI projects)
+      run: |
+        dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --configuration Release --no-restore
+        dotnet build CheapGlyphForge.GlyphMatrix.Binding/CheapGlyphForge.GlyphMatrix.Binding.csproj --configuration Release --no-restore
+        dotnet build CheapGlyphForge.GlyphInterface.Binding/CheapGlyphForge.GlyphInterface.Binding.csproj --configuration Release --no-restore
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{ matrix.language }}"
