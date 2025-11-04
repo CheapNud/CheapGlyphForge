@@ -6,216 +6,221 @@
 <MudContainer MaxWidth="MaxWidth.Large" Class="pa-6">
 
     <!-- Hero Section -->
-    <MudPaper Class="pa-8 mb-6" Elevation="4" Style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); color: white;">
-        <MudGrid>
-            <MudItem xs="12" md="8">
-                <MudText Typo="Typo.h2" Class="mb-3" Style="font-weight: 300;">
-                    🔆 CheapGlyphForge
+    <MudPaper Class="pa-8 mb-6" Elevation="3">
+        <MudStack Spacing="4">
+            <MudStack Spacing="2">
+                <MudText Typo="Typo.h3" Style="font-weight: 500;">
+                    CheapGlyphForge
                 </MudText>
-                <MudText Typo="Typo.h5" Class="mb-4" Color="Color.Inherit" Style="opacity: 0.9;">
-                    Unified Nothing Phone Glyph Development Platform
+                <MudText Typo="Typo.h6" Color="Color.Secondary">
+                    Nothing Phone Glyph Development Platform
                 </MudText>
-                <MudText Typo="Typo.body1" Class="mb-4" Color="Color.Inherit" Style="opacity: 0.8;">
-                    A comprehensive Blazor + .NET Android app for Nothing Phone Glyph Interface and Matrix control.
-                    Develop and test Glyph patterns without hardware conflicts using our unified simulator.
-                </MudText>
+            </MudStack>
+
+            <MudText Typo="Typo.body1" Color="Color.Secondary" Style="max-width: 800px;">
+                A comprehensive Blazor + .NET Android application for controlling Nothing Phone Glyph Interface and Matrix displays.
+                Design, test, and deploy custom LED patterns and animations without hardware conflicts.
+            </MudText>
+
+            <MudStack Row="true" Spacing="2" Class="mt-2">
                 <MudButton Variant="Variant.Filled"
                            Color="Color.Primary"
                            Size="Size.Large"
-                           StartIcon="Icons.Material.Filled.PlayArrow"
+                           StartIcon="Icons.Material.Filled.Rocket"
                            Href="/simulator">
-                    Launch Simulator
+                    Get Started
                 </MudButton>
-            </MudItem>
-            <MudItem xs="12" md="4" Class="text-center">
-                <MudIcon Icon="Icons.Material.Filled.PhoneAndroid"
-                         Style="font-size: 8rem; opacity: 0.6;"
-                         Color="Color.Inherit" />
-            </MudItem>
-        </MudGrid>
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Primary"
+                           Size="Size.Large"
+                           StartIcon="Icons.Material.Filled.Code"
+                           Href="https://github.com/CheapNud/CheapGlyphForge"
+                           Target="_blank">
+                    View on GitHub
+                </MudButton>
+            </MudStack>
+
+            <MudDivider Class="my-2" />
+
+            <MudStack Row="true" Spacing="4" Class="flex-wrap">
+                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                    <MudIcon Icon="Icons.Material.Filled.Lightbulb" Size="Size.Small" Color="Color.Primary" />
+                    <MudText Typo="Typo.body2">LED Glyph Control</MudText>
+                </MudStack>
+                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                    <MudIcon Icon="Icons.Material.Filled.GridOn" Size="Size.Small" Color="Color.Primary" />
+                    <MudText Typo="Typo.body2">25×25 Matrix Display</MudText>
+                </MudStack>
+                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                    <MudIcon Icon="Icons.Material.Filled.Devices" Size="Size.Small" Color="Color.Primary" />
+                    <MudText Typo="Typo.body2">Multi-Device Support</MudText>
+                </MudStack>
+            </MudStack>
+        </MudStack>
     </MudPaper>
 
-    <!-- Features Grid -->
-    <MudGrid>
-        <MudItem xs="12">
-            <MudText Typo="Typo.h4" Class="mb-4">Features</MudText>
+    <!-- Key Features -->
+    <MudText Typo="Typo.h5" Class="mb-4">Key Features</MudText>
+
+    <MudGrid Spacing="3">
+        <MudItem xs="12" md="6">
+            <MudPaper Class="pa-4" Elevation="1">
+                <MudStack Spacing="2">
+                    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                        <MudIcon Icon="Icons.Material.Filled.Lightbulb" Color="Color.Primary" Size="Size.Large" />
+                        <MudText Typo="Typo.h6">Glyph Interface Control</MudText>
+                    </MudStack>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        Control individual LED glyph channels (A-E) with real-time intensity adjustment, animations, and custom patterns.
+                        Supports all Nothing Phone models with authentic glyph layouts.
+                    </MudText>
+                </MudStack>
+            </MudPaper>
         </MudItem>
 
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Class="pa-4" Style="height: 100%;">
-                <MudCardContent>
-                    <div Class="text-center mb-3">
-                        <MudIcon Icon="Icons.Material.Filled.Lightbulb"
-                                 Style="font-size: 3rem;"
-                                 Color="Color.Primary" />
-                    </div>
-                    <MudText Typo="Typo.h6" Align="Align.Center" Class="mb-2">
-                        Glyph Interface Control
+        <MudItem xs="12" md="6">
+            <MudPaper Class="pa-4" Elevation="1">
+                <MudStack Spacing="2">
+                    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                        <MudIcon Icon="Icons.Material.Filled.GridOn" Color="Color.Primary" Size="Size.Large" />
+                        <MudText Typo="Typo.h6">25×25 LED Matrix</MudText>
+                    </MudStack>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        Full pixel-level control over the 625-LED matrix on Phone (3). Draw custom patterns, create animations,
+                        and test matrix-based notifications with interactive tools.
                     </MudText>
-                    <MudText Typo="Typo.body2" Align="Align.Center" Color="Color.Secondary">
-                        Control individual Glyph lights (A-E channels) with animations, breathing effects, and progress indicators.
-                    </MudText>
-                </MudCardContent>
-            </MudCard>
+                </MudStack>
+            </MudPaper>
         </MudItem>
 
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Class="pa-4" Style="height: 100%;">
-                <MudCardContent>
-                    <div Class="text-center mb-3">
-                        <MudIcon Icon="Icons.Material.Filled.GridOn"
-                                 Style="font-size: 3rem;"
-                                 Color="Color.Primary" />
-                    </div>
-                    <MudText Typo="Typo.h6" Align="Align.Center" Class="mb-2">
-                        25×25 LED Matrix
+        <MudItem xs="12" md="6">
+            <MudPaper Class="pa-4" Elevation="1">
+                <MudStack Spacing="2">
+                    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                        <MudIcon Icon="Icons.Material.Filled.ViewModule" Color="Color.Primary" Size="Size.Large" />
+                        <MudText Typo="Typo.h6">Unified Simulator</MudText>
+                    </MudStack>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        Test and develop glyph patterns and matrix animations in a single interface. Switch between devices
+                        seamlessly without hardware conflicts or service restarts.
                     </MudText>
-                    <MudText Typo="Typo.body2" Align="Align.Center" Color="Color.Secondary">
-                        Full control over the 625-pixel LED matrix for Phone (3) models with pattern design and animations.
-                    </MudText>
-                </MudCardContent>
-            </MudCard>
+                </MudStack>
+            </MudPaper>
         </MudItem>
 
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Class="pa-4" Style="height: 100%;">
-                <MudCardContent>
-                    <div Class="text-center mb-3">
-                        <MudIcon Icon="Icons.Material.Filled.ViewModule"
-                                 Style="font-size: 3rem;"
-                                 Color="Color.Primary" />
-                    </div>
-                    <MudText Typo="Typo.h6" Align="Align.Center" Class="mb-2">
-                        Unified Simulation
+        <MudItem xs="12" md="6">
+            <MudPaper Class="pa-4" Elevation="1">
+                <MudStack Spacing="2">
+                    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                        <MudIcon Icon="Icons.Material.Filled.Devices" Color="Color.Primary" Size="Size.Large" />
+                        <MudText Typo="Typo.h6">Multi-Device Support</MudText>
+                    </MudStack>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        Support for Phone (1), Phone (2), Phone (2a), Phone (2a) Plus, and Phone (3) with device-specific
+                        channel mappings and authentic LED layouts for accurate testing.
                     </MudText>
-                    <MudText Typo="Typo.body2" Align="Align.Center" Color="Color.Secondary">
-                        Develop and test both Interface and Matrix modes simultaneously without hardware conflicts.
-                    </MudText>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Class="pa-4" Style="height: 100%;">
-                <MudCardContent>
-                    <div Class="text-center mb-3">
-                        <MudIcon Icon="Icons.Material.Filled.Code"
-                                 Style="font-size: 3rem;"
-                                 Color="Color.Primary" />
-                    </div>
-                    <MudText Typo="Typo.h6" Align="Align.Center" Class="mb-2">
-                        Clean C# APIs
-                    </MudText>
-                    <MudText Typo="Typo.body2" Align="Align.Center" Color="Color.Secondary">
-                        Modern async/await patterns with proper error handling and cross-platform development support.
-                    </MudText>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Class="pa-4" Style="height: 100%;">
-                <MudCardContent>
-                    <div Class="text-center mb-3">
-                        <MudIcon Icon="Icons.Material.Filled.Devices"
-                                 Style="font-size: 3rem;"
-                                 Color="Color.Primary" />
-                    </div>
-                    <MudText Typo="Typo.h6" Align="Align.Center" Class="mb-2">
-                        Multi-Device Support
-                    </MudText>
-                    <MudText Typo="Typo.body2" Align="Align.Center" Color="Color.Secondary">
-                        Support for all Nothing Phone models (1, 2, 2a, 2a+, 3) with device-specific channel mappings.
-                    </MudText>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Class="pa-4" Style="height: 100%;">
-                <MudCardContent>
-                    <div Class="text-center mb-3">
-                        <MudIcon Icon="Icons.Material.Filled.Science"
-                                 Style="font-size: 3rem;"
-                                 Color="Color.Primary" />
-                    </div>
-                    <MudText Typo="Typo.h6" Align="Align.Center" Class="mb-2">
-                        Pattern Designer
-                    </MudText>
-                    <MudText Typo="Typo.body2" Align="Align.Center" Color="Color.Secondary">
-                        Interactive tools for creating custom Glyph patterns, animations, and testing sequences.
-                    </MudText>
-                </MudCardContent>
-            </MudCard>
+                </MudStack>
+            </MudPaper>
         </MudItem>
     </MudGrid>
 
     <!-- Technical Information -->
     <MudPaper Class="pa-6 mt-6" Elevation="2">
-        <MudText Typo="Typo.h5" Class="mb-4">Technical Details</MudText>
+        <MudText Typo="Typo.h5" Class="mb-4">Technical Stack</MudText>
 
-        <MudGrid>
+        <MudGrid Spacing="4">
             <MudItem xs="12" md="6">
-                <MudText Typo="Typo.h6" Class="mb-2">Requirements</MudText>
-                <MudList T="string" Class="ml-4">
-                    <MudListItem T="string" Icon="Icons.Material.Filled.PhoneAndroid">
-                        Nothing Phone with Glyph support
-                    </MudListItem>
-                    <MudListItem T="string" Icon="Icons.Material.Filled.Android">
-                        Android 14+ (API 34)
-                    </MudListItem>
-                    <MudListItem T="string" Icon="Icons.Material.Filled.Code">
-                        .NET 9.0
-                    </MudListItem>
-                    <MudListItem T="string" Icon="Icons.Material.Filled.DeveloperMode">
-                        Debug Mode Enabled
-                    </MudListItem>
-                </MudList>
+                <MudStack Spacing="3">
+                    <MudText Typo="Typo.h6">Requirements</MudText>
+                    <MudStack Spacing="2">
+                        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                            <MudIcon Icon="Icons.Material.Filled.PhoneAndroid" Size="Size.Small" Color="Color.Primary" />
+                            <MudText Typo="Typo.body2">Nothing Phone with Glyph support</MudText>
+                        </MudStack>
+                        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                            <MudIcon Icon="Icons.Material.Filled.Android" Size="Size.Small" Color="Color.Primary" />
+                            <MudText Typo="Typo.body2">Android 14+ (API Level 34)</MudText>
+                        </MudStack>
+                        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                            <MudIcon Icon="Icons.Material.Filled.Code" Size="Size.Small" Color="Color.Primary" />
+                            <MudText Typo="Typo.body2">.NET 9.0 Runtime</MudText>
+                        </MudStack>
+                        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                            <MudIcon Icon="Icons.Material.Filled.DeveloperMode" Size="Size.Small" Color="Color.Primary" />
+                            <MudText Typo="Typo.body2">Developer Mode enabled</MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudStack>
             </MudItem>
 
             <MudItem xs="12" md="6">
-                <MudText Typo="Typo.h6" Class="mb-2">Architecture</MudText>
-                <MudList T="string" Class="ml-4">
-                    <MudListItem T="string" Icon="Icons.Material.Filled.Layers">
-                        CheapGlyphForge.Core - Platform-agnostic interfaces
-                    </MudListItem>
-                    <MudListItem T="string" Icon="Icons.Material.Filled.Web">
-                        CheapGlyphForge.MAUI - Cross-platform Blazor app
-                    </MudListItem>
-                    <MudListItem T="string" Icon="Icons.Material.Filled.Link">
-                        GlyphMatrix.Binding - Nothing SDK bindings
-                    </MudListItem>
-                </MudList>
+                <MudStack Spacing="3">
+                    <MudText Typo="Typo.h6">Project Architecture</MudText>
+                    <MudStack Spacing="2">
+                        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                            <MudIcon Icon="Icons.Material.Filled.Layers" Size="Size.Small" Color="Color.Primary" />
+                            <MudStack Spacing="0">
+                                <MudText Typo="Typo.body2">CheapGlyphForge.Core</MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">Platform-agnostic interfaces</MudText>
+                            </MudStack>
+                        </MudStack>
+                        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                            <MudIcon Icon="Icons.Material.Filled.Web" Size="Size.Small" Color="Color.Primary" />
+                            <MudStack Spacing="0">
+                                <MudText Typo="Typo.body2">CheapGlyphForge.MAUI</MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">Blazor Hybrid application</MudText>
+                            </MudStack>
+                        </MudStack>
+                        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                            <MudIcon Icon="Icons.Material.Filled.Link" Size="Size.Small" Color="Color.Primary" />
+                            <MudStack Spacing="0">
+                                <MudText Typo="Typo.body2">GlyphMatrix.Binding</MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">Nothing SDK bindings</MudText>
+                            </MudStack>
+                        </MudStack>
+                    </MudStack>
+                </MudStack>
             </MudItem>
         </MudGrid>
     </MudPaper>
 
     <!-- Call to Action -->
-    <MudPaper Class="pa-6 mt-6 text-center" Elevation="2" Style="background: linear-gradient(45deg, #673ab7 30%, #9c27b0 90%);">
-        <MudText Typo="Typo.h5" Class="mb-3" Color="Color.Surface">
-            Ready to Start Developing?
-        </MudText>
-        <MudText Typo="Typo.body1" Class="mb-4" Color="Color.Surface" Style="opacity: 0.9;">
-            Launch the unified simulator to begin designing and testing your Glyph patterns
-        </MudText>
-        <MudButtonGroup Variant="Variant.Filled" Color="Color.Surface" Size="Size.Large">
-            <MudButton StartIcon="Icons.Material.Filled.PlayArrow" Href="/simulator">
-                Open Simulator
-            </MudButton>
-            <MudButton StartIcon="Icons.Material.Filled.Code"
-                       Href="https://github.com/CheapNud/CheapGlyphForge"
-                       Target="_blank">
-                View Source
-            </MudButton>
-        </MudButtonGroup>
+    <MudPaper Class="pa-8 mt-6" Elevation="2">
+        <MudStack Spacing="3" AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.h5" Align="Align.Center">
+                Ready to Start Developing?
+            </MudText>
+            <MudText Typo="Typo.body1" Align="Align.Center" Color="Color.Secondary" Style="max-width: 600px;">
+                Launch the unified simulator to begin designing and testing custom LED patterns and animations for your Nothing Phone
+            </MudText>
+            <MudStack Row="true" Spacing="2" Class="mt-2">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Size="Size.Large"
+                           StartIcon="Icons.Material.Filled.PlayArrow"
+                           Href="/simulator">
+                    Open Simulator
+                </MudButton>
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Primary"
+                           Size="Size.Large"
+                           StartIcon="Icons.Material.Filled.Code"
+                           Href="https://github.com/CheapNud/CheapGlyphForge"
+                           Target="_blank">
+                    View on GitHub
+                </MudButton>
+            </MudStack>
+        </MudStack>
     </MudPaper>
 
     <!-- Footer -->
-    <MudContainer Class="mt-8 text-center">
-        <MudText Typo="Typo.caption" Color="Color.Secondary">
-            🚧 Work in Progress - This project is in active development<br />
+    <MudStack Spacing="2" AlignItems="AlignItems.Center" Class="mt-8 mb-4">
+        <MudAlert Severity="Severity.Info" Dense="true" Class="text-center">
+            Work in Progress - This project is in active development
+        </MudAlert>
+        <MudText Typo="Typo.caption" Color="Color.Secondary" Align="Align.Center">
             Not affiliated with Nothing Technology Limited
         </MudText>
-    </MudContainer>
+    </MudStack>
 
 </MudContainer>
