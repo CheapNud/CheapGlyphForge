@@ -44,10 +44,11 @@
     <WindowsPackageType>None</WindowsPackageType>
 
     <!--
-      Android Build Workarounds for .NET 10 RC2 + Android API 36:
+      Android Build Workaround:
 
       Issue: Bundletool error "File 'root/res/values/values.xml' uses reserved file or directory name 'res'"
-      This is a known bug in .NET 10 RC2 when building Android App Bundles (AAB) for API 36.
+      when building Android App Bundles (AAB) for API 36. Present in .NET 10 RC2, retested and still
+      broken in .NET 11 preview 1 (Android SDK 36.1.99-preview.1, bundletool 1.17.0).
 
       Solution: Force APK format instead of AAB to bypass bundletool entirely.
       - AndroidPackageFormat=apk: Build APK instead of AAB (bypasses bundletool bug)
@@ -55,7 +56,7 @@
       - AndroidCreatePackagePerAbi=false: Single APK for all architectures (faster CI builds)
       - AndroidUseAapt2=true: Use newer Android Asset Packaging Tool 2
 
-      TODO: Remove these workarounds when .NET 10 stable is released or bug is fixed.
+      TODO: Retest AAB (dotnet publish -c Release -f net11.0-android36.0) on future SDK updates.
     -->
     <AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
     <AndroidUseAapt2>true</AndroidUseAapt2>
