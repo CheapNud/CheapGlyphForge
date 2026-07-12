@@ -15,7 +15,8 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 10.0.x
+        dotnet-version: 11.0.x
+        dotnet-quality: preview
     
     # Cache workloads for faster builds
     - name: Cache .NET workloads
@@ -45,7 +46,7 @@ jobs:
     - name: Build MAUI Android
       run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release --no-dependencies
       env:
-        TargetFrameworksOverride: net10.0-android36.0
+        TargetFrameworksOverride: net11.0-android36.0
 
   build-windows:
     runs-on: windows-latest
@@ -55,7 +56,8 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 10.0.x
+        dotnet-version: 11.0.x
+        dotnet-quality: preview
     
     # Cache workloads for faster builds
     - name: Cache .NET workloads  
@@ -78,7 +80,7 @@ jobs:
     - name: Build MAUI Windows
       run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release --no-dependencies
       env:
-        TargetFrameworksOverride: net10.0-windows10.0.19041.0
+        TargetFrameworksOverride: net11.0-windows10.0.19041.0
 
   # Separate iOS/macOS job to avoid cross-platform conflicts
   build-ios-macos:
@@ -90,7 +92,8 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 10.0.x
+        dotnet-version: 11.0.x
+        dotnet-quality: preview
     
     # Cache workloads for faster builds
     - name: Cache .NET workloads
@@ -115,10 +118,10 @@ jobs:
     - name: Build MAUI iOS
       run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release --no-dependencies
       env:
-        TargetFrameworksOverride: net10.0-ios
+        TargetFrameworksOverride: net11.0-ios
 
     # Build MAUI macOS (Core already built - faster with --no-dependencies)
     - name: Build MAUI macOS
       run: dotnet build CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj --configuration Release --no-dependencies
       env:
-        TargetFrameworksOverride: net10.0-maccatalyst
+        TargetFrameworksOverride: net11.0-maccatalyst
