@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="BindingAnalysis.txt" />
+    <File Path="BindingExplorer.ps1" />
+  </Folder>
+  <Project Path="CheapGlyphForge.Core/CheapGlyphForge.Core.csproj" />
+  <Project Path="CheapGlyphForge.GlyphInterface.Binding/CheapGlyphForge.GlyphInterface.Binding.csproj" />
+  <Project Path="CheapGlyphForge.GlyphMatrix.Binding/CheapGlyphForge.GlyphMatrix.Binding.csproj" />
+  <Project Path="CheapGlyphForge.MAUI/CheapGlyphForge.MAUI.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+</Solution>

@@ -1,0 +1,39 @@
+name: Build & Test
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 11
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '11.0.100-preview.1.26104.118'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: nuget-
+
+      - name: Restore
+        run: dotnet restore CheapGlyphForge.Core/CheapGlyphForge.Core.csproj -p:EnableWindowsTargeting=true
+
+      - name: Build
+        run: dotnet build CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --no-restore --configuration Release -p:EnableWindowsTargeting=true
+
+      - name: Test
+        run: dotnet test CheapGlyphForge.Core/CheapGlyphForge.Core.csproj --no-build --configuration Release --verbosity normal
