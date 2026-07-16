@@ -7,6 +7,7 @@
 @inject IGlyphInterfaceService InterfaceService
 @inject IGlyphMatrixService MatrixService
 @inject ISnackbar Snackbar
+@implements IDisposable
 
 <PageTitle>Unified Glyph Simulator</PageTitle>
 
@@ -876,6 +877,7 @@
     private SequenceKeyframe? _selectedKeyframe;
     private double _sequenceCurrentTime = 0;
     private System.Threading.Timer? _sequenceTimer;
+    private int _sequenceTickBusy;
 
     // 🎯 KOWALSKI'S MATRIX POSITIONING MAGIC
     private string GetMatrixContainerStyle()
@@ -1835,6 +1837,9 @@
 
     public void Dispose()
     {
+        _sequenceTimer?.Dispose();
+        _sequenceTimer = null;
+
         _sequenceCancellation?.Cancel();
         _sequenceCancellation?.Dispose();
 
@@ -2065,33 +2070,49 @@
         // Start timer for smooth playback
         _sequenceTimer = new System.Threading.Timer(async _ =>
         {
-            _sequenceCurrentTime += 0.05; // Update every 50ms
+            // Skip overlapping ticks: applying channel states can take longer than the 50ms period
+            if (Interlocked.Exchange(ref _sequenceTickBusy, 1) == 1) return;
 
-            if (_sequenceCurrentTime >= _currentSequence.DurationInSeconds)
+            try
             {
-                if (_currentSequence.Loop)
+                _sequenceCurrentTime += 0.05; // Update every 50ms
+
+                if (_sequenceCurrentTime >= _currentSequence.DurationInSeconds)
                 {
-                    _sequenceCurrentTime = 0;
+                    if (_currentSequence.Loop)
+                    {
+                        _sequenceCurrentTime = 0;
+                    }
+                    else
+                    {
+                        await InvokeAsync(() => StopSequencePlayback());
+                        return;
+                    }
                 }
-                else
+
+                // Apply channel states at current time
+                var state = _currentSequence.GetStateAtTime(_sequenceCurrentTime);
+                if (state != null)
                 {
-                    await InvokeAsync(() => StopSequencePlayback());
-                    return;
+                    await InvokeAsync(async () =>
+                    {
+                        foreach (var kvp in state)
+                        {
+                            await SetChannelIntensity(kvp.Key, kvp.Value);
+                        }
+                        StateHasChanged();
+                    });
                 }
             }
-
-            // Apply channel states at current time
-            var state = _currentSequence.GetStateAtTime(_sequenceCurrentTime);
-            if (state != null)
+            catch (Exception ex)
             {
-                await InvokeAsync(async () =>
-                {
-                    foreach (var kvp in state)
-                    {
-                        await SetChannelIntensity(kvp.Key, kvp.Value);
-                    }
-                    StateHasChanged();
-                });
+                // Timer callbacks are async void: an unobserved exception here (e.g. a tick racing
+                // component teardown) would crash the process
+                Debug.WriteLine($"Sequence playback tick failed: {ex.Message}");
+            }
+            finally
+            {
+                Interlocked.Exchange(ref _sequenceTickBusy, 0);
             }
         }, null, 0, 50); // Update every 50ms
 
