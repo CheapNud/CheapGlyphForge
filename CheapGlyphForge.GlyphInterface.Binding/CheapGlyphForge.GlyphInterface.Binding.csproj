@@ -12,10 +12,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- JAR file for Glyph Interface SDK -->
-    <EmbeddedJar Include="Jars\glyph-interface-sdk.jar" />
-    <!-- OR if it needs to be InputJar instead: -->
-    <!-- <InputJar Include="Jars\glyph-interface-sdk.jar" /> -->
+    <!--
+      Nothing Glyph SDK 25111 (unified: Glyph Interface + Glyph Matrix, supports Phone 1 through 4b)
+      Source: https://github.com/Nothing-Developer-Programme/Glyph-Developer-Kit (sdk/glyph-matrix-sdk-2.0.aar)
+      Retrieved: 2026-07-23, upstream blob sha 7fdd2e8ec41e6fef2aaa3f31963d06807421dfaf
+      Replaces the old standalone glyph-interface-sdk.jar — upstream unified both SDKs into one AAR.
+    -->
+    <AndroidLibrary Include="Jars\glyph-sdk-25111.aar" />
   </ItemGroup>
 
 </Project>

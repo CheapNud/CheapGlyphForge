@@ -1,6 +1,6 @@
 <!--
   TODO.md — CheapGlyphForge project work tracker
-  Last updated: 2026-03-28
+  Last updated: 2026-07-23
 
   RULES FOR AI AGENTS:
   - Update the "Last updated" date above whenever you modify this file
@@ -32,11 +32,23 @@ _Nothing blocking._
 
 ## Planned
 
-_Nothing planned._
+- [ ] (2026-07-23) Fix sequence keyframe UX: AddKeyframeAtCurrentTime always adds at t=0 when not playing [audit]
+  - Playback needs >=2 keyframes, so sequences can't be built through normal use
+  - Add a time scrubber usable while paused so keyframes land at the scrub position
+- [ ] (2026-07-23) Verify/fix _activeTabIndex desync in OnDeviceChanged when glyph tab is conditionally hidden (Phone 3) [audit]
+- [ ] (2026-07-23) Advanced mode: sub-zones (C1-C4, D1-D8) have sliders but no visual representation; label says 13 zones but provider generates 14 [audit]
+- [ ] (2026-07-23) Expose new devices from SDK 25111 in DeviceDetector + GlyphChannelInfoProvider [plan]
+  - Common now has Is24111, Is25111, Is25111p, Is25131 (Phone 3 / 4a / 4a+ / 4b)
+- [ ] (2026-07-23) Decide fate of GlyphInterface.Binding: unified aar duplicates the matrix binding's classes; MAUI only references GlyphMatrix.Binding [plan]
 
 ## Future
 
-_Nothing in future._
+- [ ] (2026-07-23) Explore new Com.Nothinglondon.Text SDK surface (Font, ScrollingText) for matrix text rendering [plan]
+- [ ] (2026-07-23) Update Home.razor: still says ".NET 9.0 Runtime" / "Blazor Hybrid" [audit]
+- [ ] (2026-07-23) Sequence interpolation truncates instead of rounds in GetStateAtTime [audit]
+- [ ] (2026-07-23) Change ApplicationId from template default com.companyname.cheapglyphforge.maui before store distribution [audit]
+- [ ] (2026-07-23) Bump MAUI packages to 11.0.0-preview.6 once VS ships .NET 11 SDK preview.6 (preview.6 packages fail on preview.1 workloads) [bug]
+- [ ] (2026-07-23) Retest AAB packaging on future SDK updates — CheapGlyphForge.MAUI.csproj:59 [code-todo]
 
 ## Done
 
